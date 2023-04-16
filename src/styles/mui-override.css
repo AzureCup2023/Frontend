@@ -1,0 +1,16 @@
+/*
+.MuiSelect-select {
+    height: 1rem !important;
+}
+
+.MuiInputLabel-root {
+    padding: 2px !important;
+}
+*/
+
+.stupidAssCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
