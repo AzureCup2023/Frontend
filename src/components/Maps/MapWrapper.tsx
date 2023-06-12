@@ -2,19 +2,20 @@ import "src/styles/mui-override.css";
 import "azure-maps-drawing-tools";
 import "src/components/Maps/Legend/LegendControl";
 
-import React, { useState, useEffect } from "react";
-import { Box, Button, Grid, MenuItem, TextField } from "@mui/material";
+import React, { useState, useEffect, memo, useMemo } from "react";
+import { Box, Button } from "@mui/material";
 import { capitalizeFirstLetter } from "src/helpers/StringUtils";
 import { LegendControl, LegendType } from "./Legend";
-import { AuthenticationOptions, AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-control";
-import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "src/restClient/RestClient";
+import { AuthenticationOptions, AuthenticationType, ControlOptions, ControlPosition, data, HtmlMarkerOptions, SymbolLayerOptions } from "azure-maps-control";
 import {
   AzureMap,
   AzureMapDataSourceProvider,
+  AzureMapHtmlMarker,
   AzureMapLayerProvider,
   AzureMapsProvider,
   IAzureCustomControls,
-  IAzureMapControls, IAzureMapOptions
+  IAzureDataSourceChildren,
+  IAzureMapControls, IAzureMapHtmlMarkerEvent, IAzureMapLayerType, IAzureMapOptions
 } from "react-azure-maps";
 
 // ----=======================---- Map Options & Controls ----=======================---- //
@@ -86,9 +87,8 @@ function MapWrapper() {
     authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
   }
 
-  console.log("Map API Key: " + process.env.REACT_APP_MAP_API_KEY)
-
   const mapOptions : IAzureMapOptions = {
+    // @ts-ignore
     authOptions: authTokenOptions, style: darkMode ? "grayscale_dark" : "grayscale_light", showFeedbackLink: false, language: "en-US", center: [0, 30], zoom: 2, view: "Auto"
   }
 
@@ -105,71 +105,24 @@ function MapWrapper() {
 
   // ----=======================---- States, Hooks ----=======================---- //
 
-  const [selectedCity, setCity] = useState({ name: "" } as any);
-  const [availableCities, setAvailableCities] = useState([]);
-
-  const [selectedOverlay, setOverlay] = useState("");
-  const [availableOverlays, setAvailableOverlays] = useState([]);
-
   const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
 
   const [currentMapOptions, setMapOptions] = useState(mapOptions);
   const [currentCustomControls, setCustomControls] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
 
-  const handleCityChange = (event) => {
-    const selectedCity = availableCities.find(city => city.name === event.target.value);
 
-    console.log("New city selected by the UI: " + selectedCity.name);
-
-    setCity(selectedCity);
-    setMapOptions({ ...currentMapOptions, center: [selectedCity.latitude, selectedCity.longitude], zoom: selectedCity.defaultZoom });
+  const memoizedOptions: SymbolLayerOptions = {
+    textOptions: {
+      textField: ['get', 'title'], //Specify the property name that contains the text you want to appear with the symbol.
+      offset: [0, 1.2],
+    },
   };
 
-  const handleOverlayChange = (event) => {
-    setOverlay(event.target.value as string);
-  };
-
-  const displaySelectedOverlay = () => {
-    async function overlayFetcher() {
-      const overlayUrl = await getCityOverlay(selectedCity.id, selectedOverlay.toLowerCase());
-      setDisplayedOverlayUrl(overlayUrl["url"]);
-
-      console.log("The displayed overlay URL was changed to: " + overlayUrl["url"]);
-
-      if (overlayUrl["url"])
-        setCustomControls(customControls);
-    }
-
-    overlayFetcher().then();
-  };
-
-  useEffect(() => {
-    async function citiesSetter() {
-      const cities = await getAvailableCities();
-      setAvailableCities(cities);
-      console.log("List of cities updated.");
-    }
-
-    citiesSetter().then();
-  }, []);
-
-  useEffect(() => {
-    async function overlaysSetter() {
-      if (!selectedCity.name) {
-        return;
-      }
-
-      setOverlay("");
-      setAvailableOverlays([]);
-
-      const overlays = await getAvailableOverlays(selectedCity.id);
-      setAvailableOverlays(overlays);
-      console.log("List of overlays updated.");
-    }
-
-    overlaysSetter().then();
-  }, [selectedCity]);
+  const point4 = new data.Position(-126.2, 55.1);
+  const [htmlMarkers, setHtmlMarkers] = useState([point4]);
+  const [markersLayer] = useState<IAzureMapLayerType>('SymbolLayer');
+  const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
 
   useEffect(() => {
     console.log("Light/dark mode switched.")
@@ -186,90 +139,93 @@ function MapWrapper() {
     setForceUpdate(forceUpdate + 1);
   }, [currentCustomControls]);
 
+
+  function azureHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
+    return {
+      position: coordinates,
+      text: 'My text',
+      title: 'Title',
+    };
+  }
+
+  const addRandomHTMLMarker = () => {
+    console.log("Adding random marker");
+    const randomLongitude = Math.floor(Math.random() * (-80 - -120) + -120);
+    const randomLatitude = Math.floor(Math.random() * (30 - 65) + 65);
+    const newPoint = new data.Position(randomLongitude, randomLatitude);
+    setHtmlMarkers([...htmlMarkers, newPoint]);
+    console.log(htmlMarkers);
+  };
+
+  const onClick = (e: any) => {
+    console.log('You click on: ', e);
+  };
+
+  const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [{ eventName: 'click', callback: onClick }];
+
+  function renderHTMLPoint(coordinates: data.Position): any {
+    const rendId = Math.random();
+    console.log("Rendering HTML marker: " + rendId)
+    return (
+      <AzureMapHtmlMarker
+        key={rendId}
+        markerContent={<div className="pulseIcon"></div>}
+        options={{ ...azureHtmlMapMarkerOptions(coordinates) } as any}
+        events={eventToMarker}
+      />
+    );
+  }
+
+  const memoizedHtmlMarkerRender: IAzureDataSourceChildren = useMemo(
+    (): any => htmlMarkers.map((marker) => renderHTMLPoint(marker)),
+    [htmlMarkers],
+  );
+
+  function clusterClicked(e: any) {
+    console.log('clusterClicked', e);
+  }
+
   // ----=======================---- DOM Elements ----=======================---- //
 
-  // @ts-ignore
-  // @ts-ignore
-  // @ts-ignore
-  // @ts-ignore
   return (
     <>
-
-      <Grid container paddingBottom={3}>
-        <Grid item xs={12} md={12} lg={4}>
-          <Box
-            sx={{ p: 2 }}>
-
-            <TextField
-              label="City"
-              style={{ minWidth: "100%" }}
-              select
-              value={selectedCity.name}
-              onChange={handleCityChange}
-            >
-              {availableCities.map((city, i) => <MenuItem key={i} value={city.name}>{city.name}</MenuItem>)}
-            </TextField>
-
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={4}>
-          <Box
-            sx={{ p: 2 }}>
-
-            <TextField
-              label="Data"
-              style={{ minWidth: "100%" }}
-              select
-              value={selectedOverlay}
-              onChange={handleOverlayChange}
-              disabled={!selectedCity.name}
-            >
-              {availableOverlays.map((overlay, i) =>
-                <MenuItem key={i} value={capitalizeFirstLetter(overlay)}>{capitalizeFirstLetter(overlay)}</MenuItem>)}
-            </TextField>
-
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={4}>
-
-          <div className="stupidAssCenter">
-
-            <Button
-              variant="contained"
-              color="info"
-              disabled={!selectedOverlay}
-              onClick={displaySelectedOverlay}
-            >
-              Display
-            </Button>
-
-          </div>
-
-        </Grid>
-      </Grid>
+      <Button size="small" variant="contained" color="primary" onClick={addRandomHTMLMarker}>
+        {' '}
+        HTML MARKER
+      </Button>
 
       <Box
-        key={forceUpdate}
-        shadow="lg"
         borderRadius="lg"
         style={{ overflow: "hidden" }}>
 
         <AzureMapsProvider>
           <div style={{ height: "calc(100vh - 160px)" }}>
             <AzureMap options={currentMapOptions} controls={controls} customControls={currentCustomControls}>
-              {
-                // Draw the heatmap whenever the display URL is non-empty.
-                displayedOverlayUrl ?
-                  (<AzureMapDataSourceProvider id={"DataSource"}
-                                               dataFromUrl={displayedOverlayUrl}>
-                      <AzureMapLayerProvider id={"HeatMap"} options={consistentZoomOptions} type={"HeatLayer"} />
-                    </AzureMapDataSourceProvider>
-                  )
-                  :
-                  <></>
-              }
+              <AzureMapDataSourceProvider
+                events={{
+                  dataadded: (e: any) => {
+                    console.log('Data on source added', e);
+                  },
+                }}
+                id={'markersExample AzureMapDataSourceProvider'}
+                options={{ cluster: true, clusterRadius: 2 }}
+              >
+                <AzureMapLayerProvider
+                  id={'markersExample AzureMapLayerProvider'}
+                  options={layerOptions}
+                  events={{
+                    click: clusterClicked,
+                    dbclick: clusterClicked,
+                  }}
+                  lifecycleEvents={{
+                    layeradded: () => {
+                      console.log('LAYER ADDED TO MAP');
+                    },
+                  }}
+                  type={markersLayer}
+                />
+                {memoizedHtmlMarkerRender}
+              </AzureMapDataSourceProvider>
             </AzureMap>
           </div>
         </AzureMapsProvider>
