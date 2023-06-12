@@ -45,10 +45,10 @@ const legend = new LegendControl({
   title: "Legend",
   legends: legends
 
-  //How the legend control should layout multiple legend cards. Options: 'list' | 'carousel' | 'accordion'
-  // layout: 'accordion',
+  //How the legend control should layout multiple legend cards. Options: "list" | "carousel" | "accordion"
+  // layout: "accordion",
 
-  //container: 'outsidePanel',
+  //container: "outsidePanel",
 });
 
 const controls: IAzureMapControls[] = [{
@@ -89,7 +89,18 @@ function MapWrapper() {
 
   const mapOptions : IAzureMapOptions = {
     // @ts-ignore
-    authOptions: authTokenOptions, style: darkMode ? "grayscale_dark" : "grayscale_light", showFeedbackLink: false, language: "en-US", center: [0, 30], zoom: 2, view: "Auto"
+    authOptions: authTokenOptions, 
+    style: "satellite", 
+    showFeedbackLink: false, 
+    language: "en-US", 
+    view: "Auto",
+
+    // This is Prague specific:
+    center: [14.4378, 50.0755], 
+    zoom: 14, 
+    maxZoom: 20,
+    minZoom: 12,
+    maxBounds: [14.2, 50.0, 14.6, 50.15]
   }
 
   // @ts-ignore
@@ -103,25 +114,21 @@ function MapWrapper() {
     }
   ];
 
-  // ----=======================---- States, Hooks ----=======================---- //
-
-  const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
-
-  const [currentMapOptions, setMapOptions] = useState(mapOptions);
-  const [currentCustomControls, setCustomControls] = useState([]);
-  const [forceUpdate, setForceUpdate] = useState(0);
-
-
   const memoizedOptions: SymbolLayerOptions = {
     textOptions: {
-      textField: ['get', 'title'], //Specify the property name that contains the text you want to appear with the symbol.
+      textField: ["get", "title"], //Specify the property name that contains the text you want to appear with the symbol.
       offset: [0, 1.2],
     },
   };
 
-  const point4 = new data.Position(-126.2, 55.1);
-  const [htmlMarkers, setHtmlMarkers] = useState([point4]);
-  const [markersLayer] = useState<IAzureMapLayerType>('SymbolLayer');
+  // ----=======================---- States, Hooks ----=======================---- //
+
+  const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
+  const [currentMapOptions, setMapOptions] = useState(mapOptions);
+  const [currentCustomControls, setCustomControls] = useState([]);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  const [htmlMarkers, setHtmlMarkers] = useState([new data.Position(14.4378, 50.0755)]);
+  const [markersLayer] = useState<IAzureMapLayerType>("SymbolLayer");
   const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
 
   useEffect(() => {
@@ -140,32 +147,33 @@ function MapWrapper() {
   }, [currentCustomControls]);
 
 
+  // ----=======================---- Map Markers ----========================---- //
+
+  
   function azureHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
     return {
       position: coordinates,
-      text: 'My text',
-      title: 'Title',
+      text: "My text",
+      title: "Title",
     };
   }
 
-  const addRandomHTMLMarker = () => {
-    console.log("Adding random marker");
-    const randomLongitude = Math.floor(Math.random() * (-80 - -120) + -120);
-    const randomLatitude = Math.floor(Math.random() * (30 - 65) + 65);
+  const addHiddenLocation = () => {
+    const randomLongitude = Math.random() * (14.6 - 14.2) + 14.2;
+    const randomLatitude = Math.random() * (50.15 - 50.0) + 50.0;
     const newPoint = new data.Position(randomLongitude, randomLatitude);
     setHtmlMarkers([...htmlMarkers, newPoint]);
     console.log(htmlMarkers);
   };
 
   const onClick = (e: any) => {
-    console.log('You click on: ', e);
+    console.log("You click on: ", e);
   };
 
-  const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [{ eventName: 'click', callback: onClick }];
+  const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [{ eventName: "click", callback: onClick }];
 
   function renderHTMLPoint(coordinates: data.Position): any {
     const rendId = Math.random();
-    console.log("Rendering HTML marker: " + rendId)
     return (
       <AzureMapHtmlMarker
         key={rendId}
@@ -182,15 +190,16 @@ function MapWrapper() {
   );
 
   function clusterClicked(e: any) {
-    console.log('clusterClicked', e);
+    console.log("clusterClicked", e);
   }
+
 
   // ----=======================---- DOM Elements ----=======================---- //
 
   return (
     <>
-      <Button size="small" variant="contained" color="primary" onClick={addRandomHTMLMarker}>
-        {' '}
+      <Button size="small" variant="contained" color="primary" onClick={addHiddenLocation}>
+        {" "}
         HTML MARKER
       </Button>
 
@@ -199,19 +208,19 @@ function MapWrapper() {
         style={{ overflow: "hidden" }}>
 
         <AzureMapsProvider>
-          <div style={{ height: "calc(100vh - 160px)" }}>
+          <div style={{ height: 'calc(100vh - 160px)' }}>
             <AzureMap options={currentMapOptions} controls={controls} customControls={currentCustomControls}>
               <AzureMapDataSourceProvider
                 events={{
                   dataadded: (e: any) => {
-                    console.log('Data on source added', e);
+                    console.log("Data on source added", e);
                   },
                 }}
-                id={'markersExample AzureMapDataSourceProvider'}
+                id={"HiddenLocationDataProvider"}
                 options={{ cluster: true, clusterRadius: 2 }}
               >
                 <AzureMapLayerProvider
-                  id={'markersExample AzureMapLayerProvider'}
+                  id={"HiddenLocationLayerProvider"}
                   options={layerOptions}
                   events={{
                     click: clusterClicked,
@@ -219,7 +228,7 @@ function MapWrapper() {
                   }}
                   lifecycleEvents={{
                     layeradded: () => {
-                      console.log('LAYER ADDED TO MAP');
+                      console.log("HiddenLocationLayer added to map");
                     },
                   }}
                   type={markersLayer}
