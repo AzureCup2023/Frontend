@@ -213,7 +213,33 @@ function MapWrapper() {
               <AzureMapDataSourceProvider
                 events={{
                   dataadded: (e: any) => {
-                    console.log("Data on source added", e);
+                    console.log("Data on FogDataProvider added", e);
+                  },
+                }}
+                id={"FogDataProvider"}
+                options={{ cluster: true, clusterRadius: 2 }}
+              >
+                <AzureMapLayerProvider
+                  id={'FogLayer'}
+                  options={{
+                    // URL to an image to overlay. Images hosted on other domains must have CORs enabled.
+                    url: "/static/images/locato/fog.jpg",
+                    // * An array of positions for the corners of the image listed in clockwise order: [top left, top right, bottom right, bottom left].
+                    coordinates: [
+                      [14.2, 50.15],
+                      [14.6, 50.15],
+                      [14.6, 50.0],
+                      [14.2, 50.0],
+                    ],
+                    opacity: 0.95,
+                  }}
+                  type={'ImageLayer'}
+                />
+              </AzureMapDataSourceProvider>
+              <AzureMapDataSourceProvider
+                events={{
+                  dataadded: (e: any) => {
+                    console.log("Data on HiddenLocationDataProvider added", e);
                   },
                 }}
                 id={"HiddenLocationDataProvider"}
