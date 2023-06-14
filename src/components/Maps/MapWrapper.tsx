@@ -6,7 +6,15 @@ import React, { useState, useEffect, memo, useMemo } from "react";
 import { Box, Button } from "@mui/material";
 import { capitalizeFirstLetter } from "src/helpers/StringUtils";
 import { LegendControl, LegendType } from "./Legend";
-import { AuthenticationOptions, AuthenticationType, ControlOptions, ControlPosition, data, HtmlMarkerOptions, SymbolLayerOptions } from "azure-maps-control";
+import atlas, {
+  AuthenticationOptions,
+  AuthenticationType,
+  ControlOptions,
+  ControlPosition,
+  data,
+  HtmlMarkerOptions,
+  SymbolLayerOptions
+} from "azure-maps-control";
 import {
   AzureMap,
   AzureMapDataSourceProvider,
@@ -17,6 +25,9 @@ import {
   IAzureDataSourceChildren,
   IAzureMapControls, IAzureMapHtmlMarkerEvent, IAzureMapLayerType, IAzureMapOptions
 } from "react-azure-maps";
+import { FogBlob, FullFog, PartialFog } from "./FogBlob";
+import { fillBucketsWithDiscoveredPoints, getEmptyBuckets } from "./Bucketizer";
+import { getTileCoordinatesFromLeftBottom } from "./MapsHelper";
 
 // ----=======================---- Map Options & Controls ----=======================---- //
 
@@ -83,25 +94,27 @@ function MapWrapper() {
   const darkMode = false;
   // ----=======================---- Map Options ----=======================---- //
 
-  const authTokenOptions : AuthenticationOptions = {
+  const authTokenOptions: AuthenticationOptions = {
     authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
-  }
+  };
 
-  const mapOptions : IAzureMapOptions = {
+  const pragueCenter = [14.4378, 50.0755];
+  const pragueBoundingBox: data.BoundingBox = new data.BoundingBox([14.2, 49.9], [14.6, 50.2]);
+  const mapOptions: IAzureMapOptions = {
     // @ts-ignore
-    authOptions: authTokenOptions, 
-    style: "satellite", 
-    showFeedbackLink: false, 
-    language: "en-US", 
+    authOptions: authTokenOptions,
+    style: "satellite",
+    showFeedbackLink: false,
+    language: "en-US",
     view: "Auto",
 
     // This is Prague specific:
-    center: [14.4378, 50.0755], 
-    zoom: 14, 
+    center: pragueCenter,
+    zoom: 14,
     maxZoom: 20,
     minZoom: 12,
-    maxBounds: [14.2, 50.0, 14.6, 50.15]
-  }
+    maxBounds: pragueBoundingBox
+  };
 
   // @ts-ignore
   const customControls: [IAzureCustomControls] = [
@@ -117,8 +130,8 @@ function MapWrapper() {
   const memoizedOptions: SymbolLayerOptions = {
     textOptions: {
       textField: ["get", "title"], //Specify the property name that contains the text you want to appear with the symbol.
-      offset: [0, 1.2],
-    },
+      offset: [0, 1.2]
+    }
   };
 
   // ----=======================---- States, Hooks ----=======================---- //
@@ -127,13 +140,14 @@ function MapWrapper() {
   const [currentMapOptions, setMapOptions] = useState(mapOptions);
   const [currentCustomControls, setCustomControls] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [htmlMarkers, setHtmlMarkers] = useState([new data.Position(14.4378, 50.0755)]);
+  const [htmlMarkers, setHtmlMarkers] = useState([new data.Position(pragueCenter[0], pragueCenter[1])]);
   const [markersLayer] = useState<IAzureMapLayerType>("SymbolLayer");
   const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
+  const [fogPositions, setFogPositions] = useState(getFoggyMap(pragueBoundingBox));
 
   useEffect(() => {
-    console.log("Light/dark mode switched.")
-    setMapOptions({ ...currentMapOptions,  style: darkMode ? "grayscale_dark" : "grayscale_light"});
+    console.log("Light/dark mode switched.");
+    setMapOptions({ ...currentMapOptions, style: darkMode ? "grayscale_dark" : "grayscale_light" });
   }, [darkMode]);
 
   useEffect(() => {
@@ -149,12 +163,12 @@ function MapWrapper() {
 
   // ----=======================---- Map Markers ----========================---- //
 
-  
+
   function azureHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
     return {
       position: coordinates,
       text: "My text",
-      title: "Title",
+      title: "Title"
     };
   }
 
@@ -163,7 +177,6 @@ function MapWrapper() {
     const randomLatitude = Math.random() * (50.15 - 50.0) + 50.0;
     const newPoint = new data.Position(randomLongitude, randomLatitude);
     setHtmlMarkers([...htmlMarkers, newPoint]);
-    console.log(htmlMarkers);
   };
 
   const onClick = (e: any) => {
@@ -186,13 +199,57 @@ function MapWrapper() {
 
   const memoizedHtmlMarkerRender: IAzureDataSourceChildren = useMemo(
     (): any => htmlMarkers.map((marker) => renderHTMLPoint(marker)),
-    [htmlMarkers],
+    [htmlMarkers]
   );
 
   function clusterClicked(e: any) {
     console.log("clusterClicked", e);
   }
 
+  const memoizedFogRender: any = useMemo(
+    (): any => fogPositions.map((fogPoint) => fogPoint.renderFog()),
+    [fogPositions]
+  );
+
+  function getFoggyMap(mapBoundingBox: data.BoundingBox): FogBlob[] {
+    const discoveredPositions = getDiscoveredPositions();
+
+    // The grid is 8x8 units
+    const gridUnits = 5;
+    const buckets: data.Position[][][] = getEmptyBuckets(gridUnits);
+    fillBucketsWithDiscoveredPoints(buckets, discoveredPositions, mapBoundingBox, gridUnits);
+
+    const fogBlobs: FogBlob[] = [];
+    const longGridTileSize = (data.BoundingBox.getEast(mapBoundingBox) - data.BoundingBox.getWest(mapBoundingBox)) / gridUnits;
+    const latGridTileSize = (data.BoundingBox.getNorth(mapBoundingBox) - data.BoundingBox.getSouth(mapBoundingBox)) / gridUnits;
+
+    // TODO: Why is this getting called 2x/3x on refresh?
+
+    for (let i = 0; i < gridUnits; i++) {
+      for (let j = 0; j < gridUnits; j++) {
+        const tileCoordinates = getTileCoordinatesFromLeftBottom(new data.Position(
+          data.BoundingBox.getWest(mapBoundingBox) + (data.BoundingBox.getEast(mapBoundingBox) - data.BoundingBox.getWest(mapBoundingBox)) * i / gridUnits,
+          data.BoundingBox.getSouth(mapBoundingBox) + (data.BoundingBox.getNorth(mapBoundingBox) - data.BoundingBox.getSouth(mapBoundingBox)) * j / gridUnits
+        ), longGridTileSize, latGridTileSize);
+
+        if (!buckets[i][j].length) {
+          fogBlobs.push(new FullFog(tileCoordinates, 0.95));
+        } else {
+          fogBlobs.push(new PartialFog(tileCoordinates, 0.95, buckets[i][j]));
+        }
+      }
+    }
+
+    return fogBlobs;
+  }
+
+  function getDiscoveredPositions(): atlas.data.Position[] {
+    return [
+      [14.4378, 50.0755],
+      [14.4378 - 0.005, 50.0755],
+      [14.4378 + 0.005, 50.0755]
+    ];
+  }
 
   // ----=======================---- DOM Elements ----=======================---- //
 
@@ -208,39 +265,24 @@ function MapWrapper() {
         style={{ overflow: "hidden" }}>
 
         <AzureMapsProvider>
-          <div style={{ height: 'calc(100vh - 160px)' }}>
+          <div style={{ height: "calc(100vh - 160px)" }}>
             <AzureMap options={currentMapOptions} controls={controls} customControls={currentCustomControls}>
               <AzureMapDataSourceProvider
                 events={{
                   dataadded: (e: any) => {
                     console.log("Data on FogDataProvider added", e);
-                  },
+                  }
                 }}
                 id={"FogDataProvider"}
                 options={{ cluster: true, clusterRadius: 2 }}
               >
-                <AzureMapLayerProvider
-                  id={'FogLayer'}
-                  options={{
-                    // URL to an image to overlay. Images hosted on other domains must have CORs enabled.
-                    url: "/static/images/locato/fog.jpg",
-                    // * An array of positions for the corners of the image listed in clockwise order: [top left, top right, bottom right, bottom left].
-                    coordinates: [
-                      [14.2, 50.15],
-                      [14.6, 50.15],
-                      [14.6, 50.0],
-                      [14.2, 50.0],
-                    ],
-                    opacity: 0.95,
-                  }}
-                  type={'ImageLayer'}
-                />
+                {memoizedFogRender}
               </AzureMapDataSourceProvider>
               <AzureMapDataSourceProvider
                 events={{
                   dataadded: (e: any) => {
                     console.log("Data on HiddenLocationDataProvider added", e);
-                  },
+                  }
                 }}
                 id={"HiddenLocationDataProvider"}
                 options={{ cluster: true, clusterRadius: 2 }}
@@ -250,12 +292,12 @@ function MapWrapper() {
                   options={layerOptions}
                   events={{
                     click: clusterClicked,
-                    dbclick: clusterClicked,
+                    dbclick: clusterClicked
                   }}
                   lifecycleEvents={{
                     layeradded: () => {
                       console.log("HiddenLocationLayer added to map");
-                    },
+                    }
                   }}
                   type={markersLayer}
                 />
