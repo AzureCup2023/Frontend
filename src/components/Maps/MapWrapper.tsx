@@ -144,6 +144,7 @@ function MapWrapper() {
   const [markersLayer] = useState<IAzureMapLayerType>("SymbolLayer");
   const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
   const [playerPosition, setPlayerPosition] = useState(pragueCenter);
+  const [discoveredPositions, setDiscoveredPositions] = useState(getDiscoveredPositions());
   const [fogPositions, setFogPositions] = useState(getFoggyMap(pragueBoundingBox));
 
   useEffect(() => {
@@ -198,7 +199,7 @@ function MapWrapper() {
     const markerPosition = e.target.getOptions().position;
     console.log("You moved the player to: ", markerPosition);
     setPlayerPosition(markerPosition);
-    // TODO: Update discovered locations
+    setDiscoveredPositions([...discoveredPositions, markerPosition]);
   }
 
   const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [
@@ -241,15 +242,17 @@ function MapWrapper() {
 
   // ----=======================---- Fog Rendering ----========================---- //
 
+  useEffect(() => {
+    console.log("Running getFoggyMap()");
+    setFogPositions(getFoggyMap(pragueBoundingBox));
+  }, [discoveredPositions]);
+
   const memoizedFogRender: any = useMemo(
     (): any => fogPositions.map((fogPoint) => fogPoint.renderFog()),
     [fogPositions]
   );
 
   function getFoggyMap(mapBoundingBox: data.BoundingBox): FogBlob[] {
-    const discoveredPositions = getDiscoveredPositions();
-    discoveredPositions.push(playerPosition);
-
     // The grid is 8x8 units
     const gridUnits = 5;
     const buckets: data.Position[][][] = getEmptyBuckets(gridUnits);
@@ -310,7 +313,7 @@ function MapWrapper() {
 
   function getDiscoveredPositions(): atlas.data.Position[] {
     return [
-      [14.4378, 50.0755],
+      playerPosition,
       [14.4378 - 0.005, 50.0755],
       [14.4378 + 0.005, 50.0755]
     ];
