@@ -2,7 +2,12 @@ import atlas, { data } from "azure-maps-control";
 import { AzureMapLayerProvider } from "react-azure-maps";
 import React from "react";
 import { fillBucketsWithDiscoveredPoints, getEmptyBuckets } from "./Bucketizer";
-import { getTileCoordinatesFromCenter, getTileCoordinatesFromLeftBottom } from "./MapsHelper";
+import {
+  getBoundingBoxFromCenter,
+  getBoundingBoxFromLeftBottom, getTileCoordinatesFromBoundingBox,
+  getTileCoordinatesFromCenter,
+  getTileCoordinatesFromLeftBottom
+} from "./MapsHelper";
 
 export abstract class FogBlob {
   public imagePath: string;
@@ -55,22 +60,94 @@ export class PartialFog extends FogBlob {
   constructor(
     tileCoordinates: atlas.data.Position[],
     opacity: number,
-    discoveredLocations: atlas.data.Position[]
+    discoveredLocationsInCurrentTile: atlas.data.Position[],
+    discoveredLocationsInNeighborTiles: atlas.data.Position[]
   ) {
     super(tileCoordinates, opacity);
     this.imagePath = "/static/images/locato/cloud.png";
-    this.discoveredLocations = discoveredLocations;
+    this.discoveredLocations = discoveredLocationsInCurrentTile.concat(discoveredLocationsInNeighborTiles);
     this.boundingBox = new data.BoundingBox(tileCoordinates[3], tileCoordinates[1]);
     this.buckets = getEmptyBuckets(this.gridUnits);
-    fillBucketsWithDiscoveredPoints(this.buckets, this.discoveredLocations, this.boundingBox, this.gridUnits);
+    fillBucketsWithDiscoveredPoints(this.buckets, discoveredLocationsInCurrentTile, this.boundingBox, this.gridUnits);
   }
 
   renderFog(): any {
-    const subTiles: atlas.data.Position[][] = [];
+    const subTileBoundingBoxes: atlas.data.BoundingBox[] = [];
     const longGridTileSize = (data.BoundingBox.getEast(this.boundingBox) - data.BoundingBox.getWest(this.boundingBox)) / this.gridUnits;
     const latGridTileSize = (data.BoundingBox.getNorth(this.boundingBox) - data.BoundingBox.getSouth(this.boundingBox)) / this.gridUnits;
 
     const numberOfCircularTiles = 7;
+    this.createCircularTiles(longGridTileSize, latGridTileSize, numberOfCircularTiles, subTileBoundingBoxes);
+    this.createSubTiles(longGridTileSize, latGridTileSize, subTileBoundingBoxes);
+
+    console.log(this.discoveredLocations.length);
+
+    const finalFogTiles: atlas.data.Position[][] = [];
+    for (let i = 0; i < subTileBoundingBoxes.length; i++) {
+      const subTileBoundingBox = subTileBoundingBoxes[i];
+
+      // Clear tiles in some proximity to discovered locations
+      if (!this.isCloseToDiscoveredLocation(subTileBoundingBox)) {
+        const tileCoordinates = getTileCoordinatesFromBoundingBox(subTileBoundingBox);
+        finalFogTiles.push(tileCoordinates);
+      }
+    }
+
+    return finalFogTiles.map(x => this.renderSubTile(x));
+  }
+
+  private isCloseToDiscoveredLocation(subTileBoundingBox: atlas.data.BoundingBox) {
+    for (let k = 0; k < this.discoveredLocations.length; k++) {
+      const location = this.discoveredLocations[k];
+
+      // Check the distance between the edge of the tile and the discovered location
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, location))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0], location[1] - this.locationRadius / 2]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0], location[1] + this.locationRadius / 2]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - this.locationRadius / 2, location[1]]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + this.locationRadius / 2, location[1]]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius]))
+        return true;
+
+      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius]))
+        return true;
+      //if (Math.abs(location[0] - centerPoint[0]) < (longGridTileSize) && Math.abs(location[1] - centerPoint[1]) < (latGridTileSize)) {
+    }
+
+    return false;
+  }
+
+  private createSubTiles(longGridTileSize: number, latGridTileSize: number, subTileBoundingBoxes: atlas.data.BoundingBox[]) {
+    for (let i = 0; i < this.gridUnits; i++) {
+      for (let j = 0; j < this.gridUnits; j++) {
+        const bottomLeftPoint = new data.Position(
+          data.BoundingBox.getWest(this.boundingBox) + (data.BoundingBox.getEast(this.boundingBox) - data.BoundingBox.getWest(this.boundingBox)) * i / this.gridUnits,
+          data.BoundingBox.getSouth(this.boundingBox) + (data.BoundingBox.getNorth(this.boundingBox) - data.BoundingBox.getSouth(this.boundingBox)) * j / this.gridUnits
+        );
+
+        const tileBoundingBox = getBoundingBoxFromLeftBottom(bottomLeftPoint, longGridTileSize, latGridTileSize);
+        subTileBoundingBoxes.push(tileBoundingBox);
+      }
+    }
+  }
+
+  private createCircularTiles(longGridTileSize: number, latGridTileSize: number, numberOfCircularTiles: number, subTileBoundingBoxes: atlas.data.BoundingBox[]) {
     const finerLongGridTileSize = longGridTileSize / 2;
     const finerLatGridTileSize = latGridTileSize / 2;
 
@@ -91,50 +168,10 @@ export class PartialFog extends FogBlob {
           location[1] - yOffset
         );
 
-        const tileCoordinates = getTileCoordinatesFromCenter(tileCenter, finerLongGridTileSize, finerLatGridTileSize);
-        subTiles.push(tileCoordinates);
+        const tileBoundingBox = getBoundingBoxFromCenter(tileCenter, finerLongGridTileSize, finerLatGridTileSize);
+        subTileBoundingBoxes.push(tileBoundingBox);
       }
     }
-
-    for (let i = 0; i < this.gridUnits; i++) {
-      for (let j = 0; j < this.gridUnits; j++) {
-        const bottomLeftPoint = new data.Position(
-          data.BoundingBox.getWest(this.boundingBox) + (data.BoundingBox.getEast(this.boundingBox) - data.BoundingBox.getWest(this.boundingBox)) * i / this.gridUnits,
-          data.BoundingBox.getSouth(this.boundingBox) + (data.BoundingBox.getNorth(this.boundingBox) - data.BoundingBox.getSouth(this.boundingBox)) * j / this.gridUnits
-        );
-        const topRightPoint = new data.Position(
-          data.BoundingBox.getWest(this.boundingBox) + (data.BoundingBox.getEast(this.boundingBox) - data.BoundingBox.getWest(this.boundingBox)) * (i + 1) / this.gridUnits,
-          data.BoundingBox.getSouth(this.boundingBox) + (data.BoundingBox.getNorth(this.boundingBox) - data.BoundingBox.getSouth(this.boundingBox)) * (j + 1) / this.gridUnits
-        );
-
-        const subTileBoundingBox = new data.BoundingBox(bottomLeftPoint, topRightPoint);
-
-        if (!this.buckets[i][j].length) {
-          // Clear tiles in some proximity to discovered locations
-          let isCloseToDiscoveredLocation = false;
-          for (let k = 0; k < this.discoveredLocations.length; k++) {
-            const location = this.discoveredLocations[k];
-
-            // Check the distance between the edge of the tile and the discovered location
-            if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0], location[1] - this.locationRadius / 2])
-              || data.BoundingBox.containsPosition(subTileBoundingBox, [location[0], location[1] + this.locationRadius / 2])
-              || data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - this.locationRadius / 2, location[1]])
-              || data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + this.locationRadius / 2, location[1]])) {
-              //if (Math.abs(location[0] - centerPoint[0]) < (longGridTileSize) && Math.abs(location[1] - centerPoint[1]) < (latGridTileSize)) {
-              isCloseToDiscoveredLocation = true;
-              break;
-            }
-          }
-
-          if (!isCloseToDiscoveredLocation) {
-            const tileCoordinates = getTileCoordinatesFromLeftBottom(bottomLeftPoint, longGridTileSize, latGridTileSize);
-            subTiles.push(tileCoordinates);
-          }
-        }
-      }
-    }
-
-    return subTiles.map(x => this.renderSubTile(x));
   }
 
   renderSubTile(subTileCoordinates: atlas.data.Position[]): any {

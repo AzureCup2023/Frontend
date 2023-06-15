@@ -140,7 +140,7 @@ function MapWrapper() {
   const [currentMapOptions, setMapOptions] = useState(mapOptions);
   const [currentCustomControls, setCustomControls] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [htmlMarkers, setHtmlMarkers] = useState([new data.Position(pragueCenter[0], pragueCenter[1])]);
+  const [htmlMarkers, setHtmlMarkers] = useState(getDiscoveredPositions());
   const [markersLayer] = useState<IAzureMapLayerType>("SymbolLayer");
   const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
   const [fogPositions, setFogPositions] = useState(getFoggyMap(pragueBoundingBox));
@@ -235,12 +235,41 @@ function MapWrapper() {
         if (!buckets[i][j].length) {
           fogBlobs.push(new FullFog(tileCoordinates, 0.95));
         } else {
-          fogBlobs.push(new PartialFog(tileCoordinates, 0.95, buckets[i][j]));
+          fogBlobs.push(new PartialFog(tileCoordinates, 0.95, buckets[i][j], getSurroundingPoints(buckets, i, j)));
         }
       }
     }
 
     return fogBlobs;
+  }
+
+  function getSurroundingPoints(buckets: data.Position[][][], i: number, j: number): data.Position[] {
+    const surroundingPoints: data.Position[] = [];
+    if (i > 0) {
+      surroundingPoints.push(...buckets[i - 1][j]);
+    }
+    if (i < buckets.length - 1) {
+      surroundingPoints.push(...buckets[i + 1][j]);
+    }
+    if (j > 0) {
+      surroundingPoints.push(...buckets[i][j - 1]);
+    }
+    if (j < buckets.length - 1) {
+      surroundingPoints.push(...buckets[i][j + 1]);
+    }
+    if (i > 0 && j > 0) {
+      surroundingPoints.push(...buckets[i - 1][j - 1]);
+    }
+    if (i < buckets.length - 1 && j < buckets.length - 1) {
+      surroundingPoints.push(...buckets[i + 1][j + 1]);
+    }
+    if (i > 0 && j < buckets.length - 1) {
+      surroundingPoints.push(...buckets[i - 1][j + 1]);
+    }
+    if (i < buckets.length - 1 && j > 0) {
+      surroundingPoints.push(...buckets[i + 1][j - 1]);
+    }
+    return surroundingPoints;
   }
 
   function getDiscoveredPositions(): atlas.data.Position[] {
