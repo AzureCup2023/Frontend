@@ -140,9 +140,10 @@ function MapWrapper() {
   const [currentMapOptions, setMapOptions] = useState(mapOptions);
   const [currentCustomControls, setCustomControls] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [htmlMarkers, setHtmlMarkers] = useState(getDiscoveredPositions());
+  const [htmlMarkers, setHtmlMarkers] = useState([]);
   const [markersLayer] = useState<IAzureMapLayerType>("SymbolLayer");
   const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
+  const [playerPosition, setPlayerPosition] = useState(pragueCenter);
   const [fogPositions, setFogPositions] = useState(getFoggyMap(pragueBoundingBox));
 
   useEffect(() => {
@@ -160,15 +161,25 @@ function MapWrapper() {
     setForceUpdate(forceUpdate + 1);
   }, [currentCustomControls]);
 
-
   // ----=======================---- Map Markers ----========================---- //
 
+  useEffect(() => {
+    console.log("Player position changed to: " + playerPosition);
+    setPlayerPosition(playerPosition);
+  }, [playerPosition]);
 
   function azureHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
     return {
       position: coordinates,
       text: "My text",
-      title: "Title"
+      title: "Title",
+    };
+  }
+
+  function playerHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
+    return {
+      position: coordinates,
+      draggable: true
     };
   }
 
@@ -183,7 +194,17 @@ function MapWrapper() {
     console.log("You click on: ", e);
   };
 
-  const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [{ eventName: "click", callback: onClick }];
+  const updatePlayerPosition = (e: any) => {
+    const markerPosition = e.target.getOptions().position;
+    console.log("You moved the player to: ", markerPosition);
+    setPlayerPosition(markerPosition);
+    // TODO: Update discovered locations
+  }
+
+  const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [
+    { eventName: "click", callback: onClick },
+    { eventName: "dragend", callback: updatePlayerPosition }
+  ];
 
   function renderHTMLPoint(coordinates: data.Position): any {
     const rendId = Math.random();
@@ -192,6 +213,18 @@ function MapWrapper() {
         key={rendId}
         markerContent={<div className="pulseIcon"></div>}
         options={{ ...azureHtmlMapMarkerOptions(coordinates) } as any}
+        events={eventToMarker}
+      />
+    );
+  }
+
+  function renderPlayerHTMLPoint(coordinates: data.Position): any {
+    const rendId = Math.random();
+    return (
+      <AzureMapHtmlMarker
+        key={rendId}
+        markerContent={<div className="playerIcon"></div>}
+        options={{ ...playerHtmlMapMarkerOptions(coordinates) } as any}
         events={eventToMarker}
       />
     );
@@ -206,6 +239,8 @@ function MapWrapper() {
     console.log("clusterClicked", e);
   }
 
+  // ----=======================---- Fog Rendering ----========================---- //
+
   const memoizedFogRender: any = useMemo(
     (): any => fogPositions.map((fogPoint) => fogPoint.renderFog()),
     [fogPositions]
@@ -213,6 +248,7 @@ function MapWrapper() {
 
   function getFoggyMap(mapBoundingBox: data.BoundingBox): FogBlob[] {
     const discoveredPositions = getDiscoveredPositions();
+    discoveredPositions.push(playerPosition);
 
     // The grid is 8x8 units
     const gridUnits = 5;
@@ -331,6 +367,7 @@ function MapWrapper() {
                   type={markersLayer}
                 />
                 {memoizedHtmlMarkerRender}
+                {renderPlayerHTMLPoint(playerPosition)}
               </AzureMapDataSourceProvider>
             </AzureMap>
           </div>

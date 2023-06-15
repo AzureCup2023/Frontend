@@ -80,8 +80,6 @@ export class PartialFog extends FogBlob {
     this.createCircularTiles(longGridTileSize, latGridTileSize, numberOfCircularTiles, subTileBoundingBoxes);
     this.createSubTiles(longGridTileSize, latGridTileSize, subTileBoundingBoxes);
 
-    console.log(this.discoveredLocations.length);
-
     const finalFogTiles: atlas.data.Position[][] = [];
     for (let i = 0; i < subTileBoundingBoxes.length; i++) {
       const subTileBoundingBox = subTileBoundingBoxes[i];
@@ -97,37 +95,26 @@ export class PartialFog extends FogBlob {
   }
 
   private isCloseToDiscoveredLocation(subTileBoundingBox: atlas.data.BoundingBox) {
-    for (let k = 0; k < this.discoveredLocations.length; k++) {
-      const location = this.discoveredLocations[k];
+    for (let i = 0; i < this.discoveredLocations.length; i++) {
+      const location = this.discoveredLocations[i];
 
-      // Check the distance between the edge of the tile and the discovered location
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, location))
-        return true;
+      const shiftedPoints = [
+        location,
+        [location[0], location[1] - this.locationRadius / 2],
+        [location[0], location[1] + this.locationRadius / 2],
+        [location[0] - this.locationRadius / 2, location[1]],
+        [location[0] + this.locationRadius / 2, location[1]],
+        // [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius],
+        // [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius],
+        // [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius],
+        // [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius]
+      ];
 
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0], location[1] - this.locationRadius / 2]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0], location[1] + this.locationRadius / 2]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - this.locationRadius / 2, location[1]]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + this.locationRadius / 2, location[1]]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius]))
-        return true;
-
-      if (data.BoundingBox.containsPosition(subTileBoundingBox, [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius]))
-        return true;
-      //if (Math.abs(location[0] - centerPoint[0]) < (longGridTileSize) && Math.abs(location[1] - centerPoint[1]) < (latGridTileSize)) {
+      for (let j = 0; j < shiftedPoints.length; j++) {
+        const shiftedPoint = shiftedPoints[j];
+        if (data.BoundingBox.containsPosition(subTileBoundingBox, shiftedPoint))
+          return true;
+      }
     }
 
     return false;
