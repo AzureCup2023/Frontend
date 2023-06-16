@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import PageHeader from './PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
-import { Grid, Container } from '@mui/material';
+import { Grid, Container, Typography } from '@mui/material';
 import Footer from 'src/components/Footer';
 
 import RecentOrders from './RecentOrders';
@@ -13,7 +12,13 @@ function ApplicationsTransactions() {
         <title>Transactions - Applications</title>
       </Helmet>
       <PageTitleWrapper>
-        <PageHeader />
+      <Grid container justifyContent="space-between" alignItems="center">
+        <Grid item>
+          <Typography variant="h3" component="h3" gutterBottom>
+            Statistiky
+          </Typography>
+        </Grid>
+      </Grid>
       </PageTitleWrapper>
       <Container maxWidth="lg">
         <Grid

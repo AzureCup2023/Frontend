@@ -27,54 +27,9 @@ function PopularTags() {
 
   return (
     <Card sx={{ height: '100%' }}>
-      <CardHeader title="Popular Tags" />
+      <CardHeader title="Skupiny" />
       <Divider />
       <ListWrapper disablePadding>
-        <ListItem
-          sx={{
-            color: `${theme.colors.primary.main}`,
-            '&:hover': { color: `${theme.colors.primary.dark}` }
-          }}
-          button
-        >
-          <ListItemText primary="#HTML" />
-        </ListItem>
-        <Divider />
-        <ListItem
-          sx={{
-            color: `${theme.colors.primary.main}`,
-            '&:hover': { color: `${theme.colors.primary.dark}` }
-          }}
-          button
-        >
-          <ListItemText primary="#software_development" />
-        </ListItem>
-        <Divider />
-        <ListItem
-          sx={{
-            color: `${theme.colors.primary.main}`,
-            '&:hover': { color: `${theme.colors.primary.dark}` }
-          }}
-          button
-        >
-          <ListItemText primary="#TrendingInfuencers" />
-        </ListItem>
-        <Divider />
-        <ListItem
-          sx={{
-            color: `${theme.colors.primary.main}`,
-            '&:hover': { color: `${theme.colors.primary.dark}` }
-          }}
-          button
-        >
-          <ListItemText primary="#investorsWatch2022" />
-        </ListItem>
-        <Divider />
-        <ListSubheader>
-          <Typography sx={{ py: 1.5 }} variant="h4" color="text.primary">
-            Groups
-          </Typography>
-        </ListSubheader>
         <Divider />
         <ListItem button>
           <ListItemAvatar>
@@ -86,7 +41,7 @@ function PopularTags() {
                 color: `${theme.palette.info.contrastText}`
               }}
             >
-              WD
+              MRP
             </Avatar>
           </ListItemAvatar>
           <ListItemText
@@ -94,7 +49,7 @@ function PopularTags() {
               variant: 'h5',
               color: `${theme.colors.alpha.black[100]}`
             }}
-            primary="Web Designers Lounge"
+            primary="Máme rádi Prahu"
           />
         </ListItem>
         <Divider />
@@ -108,7 +63,7 @@ function PopularTags() {
                 color: `${theme.colors.alpha.white[100]}`
               }}
             >
-              D
+              P!
             </Avatar>
           </ListItemAvatar>
           <ListItemText
@@ -116,23 +71,29 @@ function PopularTags() {
               variant: 'h5',
               color: `${theme.colors.alpha.black[100]}`
             }}
-            primary="Writer’s Digest Daily"
+            primary="Pochůzkáři"
           />
         </ListItem>
         <Divider />
         <ListItem button>
           <ListItemAvatar>
             <Avatar
-              sx={{ width: 38, height: 38 }}
-              src="/static/images/logo/google.svg"
-            />
+              sx={{
+                width: 38,
+                height: 38,
+                background: `${theme.colors.alpha.black[50]}`,
+                color: `${theme.colors.alpha.white[100]}`
+              }}
+            >
+              W&gt;T
+            </Avatar>
           </ListItemAvatar>
           <ListItemText
             primaryTypographyProps={{
               variant: 'h5',
               color: `${theme.colors.alpha.black[100]}`
             }}
-            primary="Google Developers"
+            primary="Less talking, more walking"
           />
         </ListItem>
       </ListWrapper>
