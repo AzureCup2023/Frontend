@@ -53,7 +53,7 @@ function Feed() {
 
   return (
     <Card>
-      <CardHeader title="Followers Feed" />
+      <CardHeader title="Podobné trasy" />
       <Divider />
       <Box p={2}>
         <Grid container spacing={0}>
@@ -76,7 +76,7 @@ function Feed() {
                     size="small"
                     startIcon={<AddTwoToneIcon />}
                   >
-                    Follow
+                    Sledovat
                   </Button>
                 </Box>
               </Box>

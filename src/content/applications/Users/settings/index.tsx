@@ -1,12 +1,10 @@
 import { useState, ChangeEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
-import PageHeader from './PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
-import { Container, Tabs, Tab, Grid } from '@mui/material';
+import { Container, Tabs, Tab, Grid, Typography } from '@mui/material';
 import Footer from 'src/components/Footer';
 import { styled } from '@mui/material/styles';
 
-import ActivityTab from './ActivityTab';
 import EditProfileTab from './EditProfileTab';
 import NotificationsTab from './NotificationsTab';
 import SecurityTab from './SecurityTab';
@@ -20,13 +18,12 @@ const TabsWrapper = styled(Tabs)(
 );
 
 function ManagementUserSettings() {
-  const [currentTab, setCurrentTab] = useState<string>('activity');
+  const [currentTab, setCurrentTab] = useState<string>('edit_profile');
 
   const tabs = [
-    { value: 'activity', label: 'Activity' },
-    { value: 'edit_profile', label: 'Edit Profile' },
-    { value: 'notifications', label: 'Notifications' },
-    { value: 'security', label: 'Passwords/Security' }
+    { value: 'edit_profile', label: 'Nastavení profilu' },
+    { value: 'notifications', label: 'Notifikace' },
+    { value: 'security', label: 'Heslo/Zabezpečení' }
   ];
 
   const handleTabsChange = (event: ChangeEvent<{}>, value: string): void => {
@@ -39,7 +36,9 @@ function ManagementUserSettings() {
         <title>User Settings - Applications</title>
       </Helmet>
       <PageTitleWrapper>
-        <PageHeader />
+        <Typography variant="h3" component="h3">
+          Uživatelské nastevení
+        </Typography>
       </PageTitleWrapper>
       <Container maxWidth="lg">
         <Grid
@@ -64,7 +63,6 @@ function ManagementUserSettings() {
             </TabsWrapper>
           </Grid>
           <Grid item xs={12}>
-            {currentTab === 'activity' && <ActivityTab />}
             {currentTab === 'edit_profile' && <EditProfileTab />}
             {currentTab === 'notifications' && <NotificationsTab />}
             {currentTab === 'security' && <SecurityTab />}

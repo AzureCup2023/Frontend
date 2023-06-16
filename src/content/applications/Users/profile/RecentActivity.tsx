@@ -9,8 +9,8 @@ import {
   styled,
 } from '@mui/material';
 
-import ShoppingBagTwoToneIcon from '@mui/icons-material/ShoppingBagTwoTone';
-import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
+import DirectionsWalk from '@mui/icons-material/DirectionsWalk';
+import TravelExplore from '@mui/icons-material/TravelExplore';
 import StarTwoToneIcon from '@mui/icons-material/StarTwoTone';
 
 const AvatarPrimary = styled(Avatar)(
@@ -27,35 +27,35 @@ function RecentActivity() {
 
   return (
     <Card>
-      <CardHeader title="Recent Activity" />
+      <CardHeader title="Aktivita" />
       <Divider />
       <Box px={2} py={4} display="flex" alignItems="flex-start">
         <AvatarPrimary>
-          <ShoppingBagTwoToneIcon />
+          <DirectionsWalk />
         </AvatarPrimary>
         <Box pl={2} flex={1}>
-          <Typography variant="h3">Orders</Typography>
+          <Typography variant="h3">Nachozené kilometry</Typography>
 
           <Box pt={2} display="flex">
             <Box pr={8}>
               <Typography
                 gutterBottom
                 variant="caption"
-                sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
+                sx={{ fontSize: `${theme.typography.pxToRem(14)}` }}
               >
-                Total
+                Tento týden
               </Typography>
-              <Typography variant="h2">485</Typography>
+              <Typography variant="h2">25</Typography>
             </Box>
             <Box>
               <Typography
                 gutterBottom
                 variant="caption"
-                sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
+                sx={{ fontSize: `${theme.typography.pxToRem(14)}` }}
               >
-                Failed
+                Celkem
               </Typography>
-              <Typography variant="h2">8</Typography>
+              <Typography variant="h2">327</Typography>
             </Box>
           </Box>
         </Box>
@@ -63,10 +63,10 @@ function RecentActivity() {
       <Divider />
       <Box px={2} py={4} display="flex" alignItems="flex-start">
         <AvatarPrimary>
-          <FavoriteTwoToneIcon />
+          <TravelExplore />
         </AvatarPrimary>
         <Box pl={2} flex={1}>
-          <Typography variant="h3">Favourites</Typography>
+          <Typography variant="h3">Objevené památky</Typography>
 
           <Box pt={2} display="flex">
             <Box pr={8}>
@@ -75,9 +75,9 @@ function RecentActivity() {
                 variant="caption"
                 sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
               >
-                Products
+                Tento týden
               </Typography>
-              <Typography variant="h2">64</Typography>
+              <Typography variant="h2">3</Typography>
             </Box>
             <Box>
               <Typography
@@ -85,9 +85,9 @@ function RecentActivity() {
                 variant="caption"
                 sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
               >
-                Lists
+                Celkem
               </Typography>
-              <Typography variant="h2">15</Typography>
+              <Typography variant="h2">47</Typography>
             </Box>
           </Box>
         </Box>
@@ -98,7 +98,7 @@ function RecentActivity() {
           <StarTwoToneIcon />
         </AvatarPrimary>
         <Box pl={2} flex={1}>
-          <Typography variant="h3">Reviews</Typography>
+          <Typography variant="h3">Prozkoumané území</Typography>
 
           <Box pt={2} display="flex">
             <Box pr={8}>
@@ -107,19 +107,9 @@ function RecentActivity() {
                 variant="caption"
                 sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
               >
-                Total
+                Celkem
               </Typography>
-              <Typography variant="h2">654</Typography>
-            </Box>
-            <Box>
-              <Typography
-                gutterBottom
-                variant="caption"
-                sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
-              >
-                Useful
-              </Typography>
-              <Typography variant="h2">21</Typography>
+              <Typography variant="h2">51%</Typography>
             </Box>
           </Box>
         </Box>

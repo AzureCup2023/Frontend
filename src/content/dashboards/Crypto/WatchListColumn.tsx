@@ -84,13 +84,13 @@ function WatchListColumn() {
       show: false
     },
     labels: [
-      'Monday',
-      'Tueday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday'
+      'Pondělí',
+      'Úterý',
+      'Středa',
+      'Čtvrtek',
+      'Pátek',
+      'Sobota',
+      'Neděle'
     ],
     xaxis: {
       labels: {
@@ -111,13 +111,6 @@ function WatchListColumn() {
       x: {
         show: true
       },
-      y: {
-        title: {
-          formatter: function () {
-            return 'Price: $';
-          }
-        }
-      },
       marker: {
         show: false
       }
@@ -125,8 +118,8 @@ function WatchListColumn() {
   };
   const chart1Data = [
     {
-      name: 'Bitcoin Price',
-      data: [55.701, 57.598, 48.607, 46.439, 58.755, 46.978, 58.16]
+      name: 'Počet kilometrů',
+      data: [10.5, 13.598, 9.1, 6.439, 12.755, 8.3, 12.31]
     }
   ];
   const chart2Data = [
@@ -162,18 +155,12 @@ function WatchListColumn() {
             }}
           >
             <Box display="flex" alignItems="center">
-              <AvatarWrapper>
-                <img
-                  alt="BTC"
-                  src="/static/images/placeholders/logo/bitcoin.png"
-                />
-              </AvatarWrapper>
               <Box>
                 <Typography variant="h4" noWrap>
-                  Bitcoin
+                  Denní aktivita
                 </Typography>
                 <Typography variant="subtitle1" noWrap>
-                  BTC
+                  Počet nachozených kilometrů
                 </Typography>
               </Box>
             </Box>
@@ -192,29 +179,11 @@ function WatchListColumn() {
                   mb: 1
                 }}
               >
-                $56,475.99
+                12.31 km
               </Typography>
               <Text color="success">
                 <b>+12.5%</b>
               </Text>
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start'
-              }}
-            >
-              <Label color="success">+$500</Label>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  pl: 1
-                }}
-              >
-                last 24h
-              </Typography>
             </Box>
           </Box>
           <Chart
@@ -237,15 +206,9 @@ function WatchListColumn() {
             }}
           >
             <Box display="flex" alignItems="center">
-              <AvatarWrapper>
-                <img
-                  alt="ETH"
-                  src="/static/images/placeholders/logo/ethereum.png"
-                />
-              </AvatarWrapper>
               <Box>
                 <Typography variant="h4" noWrap>
-                  Ethereum
+                  Todo1
                 </Typography>
                 <Typography variant="subtitle1" noWrap>
                   ETH
@@ -272,25 +235,7 @@ function WatchListColumn() {
               <Text color="error">
                 <b>-3.24%</b>
               </Text>
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start'
-              }}
-            >
-              <Label color="error">-$90</Label>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  pl: 1
-                }}
-              >
-                last 24h
-              </Typography>
-            </Box>
+            </Box>  
           </Box>
           <Chart
             options={chartOptions}
@@ -312,15 +257,9 @@ function WatchListColumn() {
             }}
           >
             <Box display="flex" alignItems="center">
-              <AvatarWrapper>
-                <img
-                  alt="ADA"
-                  src="/static/images/placeholders/logo/cardano.png"
-                />
-              </AvatarWrapper>
               <Box>
                 <Typography variant="h4" noWrap>
-                  Cardano
+                  Todo2
                 </Typography>
                 <Typography variant="subtitle1" noWrap>
                   ADA
@@ -347,24 +286,6 @@ function WatchListColumn() {
               <Text color="error">
                 <b>-0.33%</b>
               </Text>
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start'
-              }}
-            >
-              <Label color="error">-$5</Label>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  pl: 1
-                }}
-              >
-                last 24h
-              </Typography>
             </Box>
           </Box>
           <Chart

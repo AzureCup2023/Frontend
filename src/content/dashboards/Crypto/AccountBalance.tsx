@@ -138,7 +138,7 @@ function AccountBalance() {
               }}
               variant="h4"
             >
-              Account Balance
+              Achievmenty todo
             </Typography>
             <Box>
               <Typography variant="h1" gutterBottom>
