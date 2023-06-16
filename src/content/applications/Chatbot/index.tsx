@@ -13,6 +13,13 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
+const { Configuration, OpenAIApi } = require("openai");
+
+const configuration = new Configuration({
+  apiKey: process.env.REACT_APP_GPT_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
 const RootWrapper = styled(Box)(
 	({ theme }) => `
 			 height: calc(100vh - ${theme.header.height});
@@ -66,7 +73,7 @@ const CardWrapperSecondary = styled(Card)(
 function Block(prop: {text: string, flex: string}) {
 	return <Box
 			display="flex"
-			alignItems="flex-start"
+			alignItems={"flex-" + prop.flex}
 			justifyContent={"flex-" + prop.flex}
 			py={3}
 		>
@@ -93,11 +100,17 @@ function Block(prop: {text: string, flex: string}) {
 function ApplicationsChatBot() {
 	const [chatContent, setChatContent] = useState([]);
 
-	function sendMessage() {
+	async function sendMessage() {
 		const elem = (document.getElementById("text-content") as HTMLInputElement);
-		chatContent.push({option: "start", text: elem.value});
+		if (!elem.value) return;
+		chatContent.push({flex: "end", text: elem.value});
 		setChatContent([...chatContent]);
-		// todo send message and render response
+		const chatCompletion = await openai.createChatCompletion({
+			model: "gpt-3.5-turbo",
+			messages: [{role: "user", content: elem.value}],
+		});
+		chatContent.push({flex: "start", text: chatCompletion.data.choices[0].message.content});
+		setChatContent([...chatContent]);
 	}
 
 	const theme = useTheme();
@@ -113,7 +126,7 @@ function ApplicationsChatBot() {
 						<Scrollbar>
 							<Box p={3}>
 								{chatContent.map((el, idx) => { 
-									return <Block key={idx} flex='end' text={el.text} />
+									return <Block key={idx} flex={el.flex} text={el.text} />
 								})}
 							</Box>
 						</Scrollbar>
