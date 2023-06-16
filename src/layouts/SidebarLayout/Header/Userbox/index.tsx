@@ -60,9 +60,9 @@ const UserBoxDescription = styled(Typography)(
 
 function HeaderUserbox() {
   const user = {
-    name: 'Catherine Pike',
-    avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Project Manager'
+    name: 'Lorem Ipsolon',
+    avatar: '/static/images/avatars/4.jpg',
+    jobtitle: 'Průzkumník'
   };
 
   const ref = useRef<any>(null);
@@ -118,11 +118,7 @@ function HeaderUserbox() {
         <List sx={{ p: 1 }} component="nav">
           <ListItem button to="/management/profile/details" component={NavLink}>
             <AccountBoxTwoToneIcon fontSize="small" />
-            <ListItemText primary="My Profile" />
-          </ListItem>
-          <ListItem button to="/dashboards/messenger" component={NavLink}>
-            <InboxTwoToneIcon fontSize="small" />
-            <ListItemText primary="Messenger" />
+            <ListItemText primary="Můj profil" />
           </ListItem>
           <ListItem
             button
@@ -130,14 +126,14 @@ function HeaderUserbox() {
             component={NavLink}
           >
             <AccountTreeTwoToneIcon fontSize="small" />
-            <ListItemText primary="Account Settings" />
+            <ListItemText primary="Nastavení profilu" />
           </ListItem>
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
           <Button color="primary" fullWidth href='/'>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
-            Sign out
+            Odhlášení
           </Button>
         </Box>
       </Popover>

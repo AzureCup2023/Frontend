@@ -12,11 +12,9 @@ import {
 import { NavLink as RouterLink } from 'react-router-dom';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 
-import DesignServicesTwoToneIcon from '@mui/icons-material/DesignServicesTwoTone';
 import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
 import MmsTwoToneIcon from '@mui/icons-material/MmsTwoTone';
 import TableChartTwoToneIcon from '@mui/icons-material/TableChartTwoTone';
-import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import BallotTwoToneIcon from '@mui/icons-material/BallotTwoTone';
 import BeachAccessTwoToneIcon from '@mui/icons-material/BeachAccessTwoTone';
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone';
@@ -26,11 +24,6 @@ import LocalPharmacyTwoToneIcon from '@mui/icons-material/LocalPharmacyTwoTone';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import TrafficTwoToneIcon from '@mui/icons-material/TrafficTwoTone';
-import CheckBoxTwoToneIcon from '@mui/icons-material/CheckBoxTwoTone';
-import ChromeReaderModeTwoToneIcon from '@mui/icons-material/ChromeReaderModeTwoTone';
-import WorkspacePremiumTwoToneIcon from '@mui/icons-material/WorkspacePremiumTwoTone';
-import CameraFrontTwoToneIcon from '@mui/icons-material/CameraFrontTwoTone';
-import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -184,7 +177,7 @@ function SidebarMenu() {
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
-              Dashboards
+              Hlavní
             </ListSubheader>
           }
         >
@@ -198,7 +191,7 @@ function SidebarMenu() {
                   to="/dashboards/crypto"
                   startIcon={<BrightnessLowTwoToneIcon />}
                 >
-                  Cryptocurrency
+                  Přehled
                 </Button>
               </ListItem>
               <ListItem component="div">
@@ -206,10 +199,10 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/dashboards/messenger"
+                  to="/dashboards/chatbot"
                   startIcon={<MmsTwoToneIcon />}
                 >
-                  Messenger
+                  ChatBot
                 </Button>
               </ListItem>
               <ListItem component="div">
@@ -220,7 +213,7 @@ function SidebarMenu() {
                   to="/dashboards/map"
                   startIcon={<MmsTwoToneIcon />}
                 >
-                  Map
+                  Mapa
                 </Button>
               </ListItem>
             </List>
@@ -230,7 +223,7 @@ function SidebarMenu() {
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
-              Management
+              Komunita
             </ListSubheader>
           }
         >
@@ -244,31 +237,7 @@ function SidebarMenu() {
                   to="/management/transactions"
                   startIcon={<TableChartTwoToneIcon />}
                 >
-                  Transactions List
-                </Button>
-              </ListItem>
-            </List>
-          </SubMenuWrapper>
-        </List>
-        <List
-          component="div"
-          subheader={
-            <ListSubheader component="div" disableSticky>
-              Accounts
-            </ListSubheader>
-          }
-        >
-          <SubMenuWrapper>
-            <List component="div">
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/profile/details"
-                  startIcon={<AccountCircleTwoToneIcon />}
-                >
-                  User Profile
+                  Statistiky
                 </Button>
               </ListItem>
               <ListItem component="div">
@@ -276,10 +245,10 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/management/profile/settings"
-                  startIcon={<DisplaySettingsTwoToneIcon />}
+                  to="/management/transactions"
+                  startIcon={<EmojiEventsTwoToneIcon />}
                 >
-                  Account Settings
+                  Žebříček
                 </Button>
               </ListItem>
             </List>
@@ -392,63 +361,6 @@ function SidebarMenu() {
                   startIcon={<TrafficTwoToneIcon />}
                 >
                   Forms
-                </Button>
-              </ListItem>
-            </List>
-          </SubMenuWrapper>
-        </List>
-        <List
-          component="div"
-          subheader={
-            <ListSubheader component="div" disableSticky>
-              Extra Pages
-            </ListSubheader>
-          }
-        >
-          <SubMenuWrapper>
-            <List component="div">
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/status/404"
-                  startIcon={<CheckBoxTwoToneIcon />}
-                >
-                  Error 404
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/status/500"
-                  startIcon={<CameraFrontTwoToneIcon />}
-                >
-                  Error 500
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/status/coming-soon"
-                  startIcon={<ChromeReaderModeTwoToneIcon />}
-                >
-                  Coming Soon
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/status/maintenance"
-                  startIcon={<WorkspacePremiumTwoToneIcon />}
-                >
-                  Maintenance
                 </Button>
               </ListItem>
             </List>
