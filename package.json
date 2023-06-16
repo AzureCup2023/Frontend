@@ -5,8 +5,6 @@
   "description": "Locato is a React Web application that allows users to visualize geographic data on a map.",
   "private": false,
   "dependencies": {
-    "@azure/core-auth": "^1.4.0",
-    "@azure/openai": "^1.0.0-beta.2",
     "@emotion/react": "11.9.0",
     "@emotion/styled": "11.8.1",
     "@mui/icons-material": "5.8.2",
@@ -23,6 +21,7 @@
     "history": "5.3.0",
     "nprogress": "0.2.0",
     "numeral": "2.0.6",
+    "openai": "^3.3.0",
     "prop-types": "15.8.1",
     "react": "17.0.2",
     "react-apexcharts": "1.4.0",
