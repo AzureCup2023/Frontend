@@ -200,6 +200,15 @@ function MapWrapper() {
     console.log("You moved the player to: ", markerPosition);
     setPlayerPosition(markerPosition);
     setDiscoveredPositions([...discoveredPositions, markerPosition]);
+    //setFogPositions(getFoggyMap(pragueBoundingBox));
+
+    for (let i = 0; i < fogPositions.length; i++) {
+      if (fogPositions[i].containsPosition(markerPosition)) {
+        const fogBlob = fogPositions[i];
+        fogPositions[i] = fogPositions[i].dissolve([markerPosition], []);
+        break;
+      }
+    }
   }
 
   const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [
@@ -242,10 +251,12 @@ function MapWrapper() {
 
   // ----=======================---- Fog Rendering ----========================---- //
 
+  /*
   useEffect(() => {
     console.log("Running getFoggyMap()");
     setFogPositions(getFoggyMap(pragueBoundingBox));
   }, [discoveredPositions]);
+   */
 
   const memoizedFogRender: any = useMemo(
     (): any => fogPositions.map((fogPoint) => fogPoint.renderFog()),

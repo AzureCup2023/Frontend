@@ -11,6 +11,7 @@ import {
 
 export abstract class FogBlob {
   public imagePath: string;
+  protected boundingBox: data.BoundingBox;
 
   protected constructor(
     public tileCoordinates: atlas.data.Position[],
@@ -18,9 +19,17 @@ export abstract class FogBlob {
   ) {
     this.tileCoordinates = tileCoordinates;
     this.opacity = opacity;
+    this.boundingBox = new data.BoundingBox(tileCoordinates[3], tileCoordinates[1]);
   }
 
   abstract renderFog(): any;
+
+  abstract dissolve(discoveredLocationsInCurrentTile: atlas.data.Position[],
+                    discoveredLocationsInNeighborTiles: atlas.data.Position[]): FogBlob;
+
+  containsPosition(position: atlas.data.Position): boolean {
+    return data.BoundingBox.containsPosition(this.boundingBox, position);
+  }
 }
 
 export class FullFog extends FogBlob {
@@ -35,6 +44,7 @@ export class FullFog extends FogBlob {
   function;
 
   renderFog(): any {
+    console.log("Rendering full fog");
     const rendId = Math.random();
     return (
       <AzureMapLayerProvider
@@ -48,13 +58,18 @@ export class FullFog extends FogBlob {
       />
     );
   }
+
+  dissolve(discoveredLocationsInCurrentTile: atlas.data.Position[],
+           discoveredLocationsInNeighborTiles: atlas.data.Position[]): FogBlob {
+    console.log("Dissolving full fog");
+    return new PartialFog(this.tileCoordinates, this.opacity, discoveredLocationsInCurrentTile, discoveredLocationsInNeighborTiles);
+  }
 }
 
 export class PartialFog extends FogBlob {
   private locationRadius: number = 0.005;
   private gridUnits: number = 8;
   private discoveredLocations: atlas.data.Position[];
-  private boundingBox: data.BoundingBox;
   private buckets: data.Position[][][];
 
   constructor(
@@ -66,7 +81,6 @@ export class PartialFog extends FogBlob {
     super(tileCoordinates, opacity);
     this.imagePath = "/static/images/locato/cloud.png";
     this.discoveredLocations = discoveredLocationsInCurrentTile.concat(discoveredLocationsInNeighborTiles);
-    this.boundingBox = new data.BoundingBox(tileCoordinates[3], tileCoordinates[1]);
     this.buckets = getEmptyBuckets(this.gridUnits);
     fillBucketsWithDiscoveredPoints(this.buckets, discoveredLocationsInCurrentTile, this.boundingBox, this.gridUnits);
   }
@@ -91,7 +105,16 @@ export class PartialFog extends FogBlob {
       }
     }
 
+    console.log("Rendering partial fog");
     return finalFogTiles.map(x => this.renderSubTile(x));
+  }
+
+  dissolve(discoveredLocationsInCurrentTile: atlas.data.Position[],
+           discoveredLocationsInNeighborTiles: atlas.data.Position[]): FogBlob {
+    console.log("Dissolving partial fog");
+    this.discoveredLocations.push(...discoveredLocationsInCurrentTile);
+    this.discoveredLocations.push(...discoveredLocationsInNeighborTiles);
+    return this;
   }
 
   private isCloseToDiscoveredLocation(subTileBoundingBox: atlas.data.BoundingBox) {
@@ -104,6 +127,8 @@ export class PartialFog extends FogBlob {
         [location[0], location[1] + this.locationRadius / 2],
         [location[0] - this.locationRadius / 2, location[1]],
         [location[0] + this.locationRadius / 2, location[1]],
+
+        // TODO: Adjust the diagonal points
         // [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius],
         // [location[0] + Math.sin(Math.PI / 4) * this.locationRadius, location[1] - Math.sin(Math.PI / 4) * this.locationRadius],
         // [location[0] - Math.sin(Math.PI / 4) * this.locationRadius, location[1] + Math.sin(Math.PI / 4) * this.locationRadius],
