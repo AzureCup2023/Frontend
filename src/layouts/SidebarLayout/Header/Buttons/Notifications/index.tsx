@@ -96,7 +96,7 @@ function HeaderNotifications() {
             <Box flex="1">
               <Box display="flex" justifyContent="space-between">
                 <Typography sx={{ fontWeight: 'bold' }}>
-                  Messaging Platform
+                  Odemčený úspěch
                 </Typography>
                 <Typography variant="caption" sx={{ textTransform: 'none' }}>
                   {formatDistance(subDays(new Date(), 3), new Date(), {
@@ -110,7 +110,7 @@ function HeaderNotifications() {
                 color="text.secondary"
               >
                 {' '}
-                new messages in your inbox
+                Prozkoumat 50% Prahy.
               </Typography>
             </Box>
           </ListItem>
