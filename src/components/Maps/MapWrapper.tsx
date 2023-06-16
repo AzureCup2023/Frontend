@@ -98,7 +98,7 @@ function MapWrapper() {
     authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
   };
 
-  const pragueCenter = [14.4378, 50.0755];
+  const pragueCenter = [14.4206, 50.0679];
   const pragueBoundingBox: data.BoundingBox = new data.BoundingBox([14.2, 49.9], [14.6, 50.2]);
   const mapOptions: IAzureMapOptions = {
     // @ts-ignore
@@ -199,8 +199,9 @@ function MapWrapper() {
     const markerPosition = e.target.getOptions().position;
     console.log("You moved the player to: ", markerPosition);
     setPlayerPosition(markerPosition);
+
+    // TODO: More locations should be added (neighbouring locations should be revealed)
     setDiscoveredPositions([...discoveredPositions, markerPosition]);
-    //setFogPositions(getFoggyMap(pragueBoundingBox));
 
     for (let i = 0; i < fogPositions.length; i++) {
       if (fogPositions[i].containsPosition(markerPosition)) {
@@ -209,6 +210,8 @@ function MapWrapper() {
         break;
       }
     }
+
+    setFogPositions(getFoggyMap(pragueBoundingBox));
   }
 
   const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [
@@ -283,7 +286,7 @@ function MapWrapper() {
         ), longGridTileSize, latGridTileSize);
 
         if (!buckets[i][j].length) {
-          fogBlobs.push(new FullFog(tileCoordinates, 0.95));
+          fogBlobs.push(new FullFog(tileCoordinates, 0.85));
         } else {
           fogBlobs.push(new PartialFog(tileCoordinates, 0.95, buckets[i][j], getSurroundingPoints(buckets, i, j)));
         }
@@ -325,8 +328,8 @@ function MapWrapper() {
   function getDiscoveredPositions(): atlas.data.Position[] {
     return [
       playerPosition,
-      [14.4378 - 0.005, 50.0755],
-      [14.4378 + 0.005, 50.0755]
+      [playerPosition[0] - 0.005, playerPosition[1]],
+      [playerPosition[0] + 0.005, playerPosition[1]],
     ];
   }
 
