@@ -1,8 +1,8 @@
 {
-  "name": "locato-2023",
+  "name": "foxplore-2023",
   "version": "1.0.0",
-  "title": "Locato",
-  "description": "Locato is a React Web application that allows users to visualize geographic data on a map.",
+  "title": "Foxplore",
+  "description": "Foxplore - fog explore, explore your city.",
   "private": false,
   "dependencies": {
     "@emotion/react": "11.9.0",
