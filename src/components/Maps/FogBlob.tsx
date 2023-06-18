@@ -84,7 +84,7 @@ export class SmallFog extends React.Component<FogBlobProps> implements FogBlobPr
   constructor(props: FogBlobProps) {
     super(props);
     this.id = props.id;
-    this.tileCoordinates = props.tileCoordinates;
+    this.tileCoordinates = this.expandCoordinates(0.005, props.tileCoordinates);
     this.opacity = props.opacity;
     this.onUpdate = props.onUpdate;
     this.boundingBox = new data.BoundingBox(this.tileCoordinates[3], this.tileCoordinates[1]);
@@ -110,7 +110,7 @@ export class SmallFog extends React.Component<FogBlobProps> implements FogBlobPr
         key={rendId}
         options={{
           url: `/static/images/locato/partial-${Math.floor(rendId * 4)}-min.png`,
-          coordinates: this.expandCoordinates(0.005, this.tileCoordinates),
+          coordinates: this.tileCoordinates,
           // TODO: Opacity should be based on distance from discovered locations
           opacity: this.opacity,
           fadeDuration: 500

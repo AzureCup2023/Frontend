@@ -64,3 +64,23 @@
 .undiscoveredLocation::before {
     content: "?";
 }
+
+.discoveredLocation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    color: orange;
+    background: white;
+    font-size: 25px;
+    font-weight: bold;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(0, 204, 255, 0.4);
+    animation: pulse 4s infinite;
+}
+
+.discoveredLocation:hover {
+    animation: none;
+}

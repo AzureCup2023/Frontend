@@ -2,9 +2,8 @@ import "src/styles/mui-override.css";
 import "azure-maps-drawing-tools";
 import "src/components/Maps/Legend/LegendControl";
 
-import React, { useState, useEffect, memo, useMemo } from "react";
-import { Box, Button } from "@mui/material";
-import { capitalizeFirstLetter } from "src/helpers/StringUtils";
+import React, { useState, useEffect, useMemo } from "react";
+import { Box, Button, Card, Typography } from "@mui/material";
 import { LegendControl, LegendType } from "./Legend";
 import atlas, {
   AuthenticationOptions,
@@ -22,14 +21,14 @@ import {
   AzureMapLayerProvider,
   AzureMapsProvider,
   IAzureCustomControls,
-  IAzureDataSourceChildren,
   IAzureMapControls, IAzureMapHtmlMarkerEvent, IAzureMapLayerType, IAzureMapOptions
 } from "react-azure-maps";
 import { FogBlobProps, FullFog, getSmallFog, SmallFog } from "./FogBlob";
 import { fillBucketsWithDiscoveredPoints, getEmptyBuckets, getSurroundingPoints } from "./Bucketizer";
 import { getTileCoordinatesFromLeftBottom } from "./MapsHelper";
-import { UndiscoveredLocation, UndiscoveredLocationProps } from "./UndiscoveredLocation";
+import { PointOfInterest, PointOfInterestProps } from "./PointOfInterest";
 import newId from "./NewId";
+import { getAll, getExplored, getViewpoints } from "../../restClient/RestClient";
 
 // ----=======================---- Map Options & Controls ----=======================---- //
 
@@ -115,20 +114,9 @@ function MapWrapper() {
     maxBounds: pragueBoundingBox
   };
 
-  // @ts-ignore
-  const customControls: [IAzureCustomControls] = [
-    {
-      // @ts-ignore
-      control: legend,
-      controlOptions: {
-        position: ControlPosition.BottomLeft
-      }
-    }
-  ];
-
   const memoizedOptions: SymbolLayerOptions = {
     textOptions: {
-      textField: ["get", "title"], //Specify the property name that contains the text you want to appear with the symbol.
+      textField: ["get", "title"],
       offset: [0, 1.2]
     }
   };
@@ -136,25 +124,16 @@ function MapWrapper() {
   // ----=======================---- States, Hooks ----=======================---- //
 
   const [currentMapOptions, setMapOptions] = useState(mapOptions);
-  const [currentCustomControls, setCustomControls] = useState([]);
-  const [forceUpdate, setForceUpdate] = useState(0);
-  const [undiscoveredLocations, setUndiscoveredLocations] = useState<UndiscoveredLocationProps[]>([]);
-  const [discoveredLocations, setDiscoveredLocations] = useState<UndiscoveredLocationProps[]>([]);
   const [markersLayer] = useState<IAzureMapLayerType>("SymbolLayer");
   const [layerOptions, setLayerOptions] = useState<SymbolLayerOptions>(memoizedOptions);
   const [playerPosition, setPlayerPosition] = useState(pragueCenter);
-  const [discoveredPositions, setDiscoveredPositions] = useState(getDiscoveredPositions());
-  const [fogPositions, setFogPositions] = useState<FogBlobProps[]>(getDefaultFoggyMap(pragueBoundingBox));
+  const [fogPositions, setFogPositions] = useState<FogBlobProps[]>([]);
+  const [discoveredPositions, setDiscoveredPositions] = useState([]);
+  const [pointsOfInterest, setPointsOfInterest] = useState<PointOfInterestProps[]>([]);
 
   useEffect(() => {
     console.log("Moved map center to: " + currentMapOptions.center);
-    setForceUpdate(forceUpdate + 1);
   }, [currentMapOptions]);
-
-  useEffect(() => {
-    console.log("The legend has been added");
-    setForceUpdate(forceUpdate + 1);
-  }, [currentCustomControls]);
 
   // ----=======================---- Map Markers ----========================---- //
 
@@ -163,12 +142,64 @@ function MapWrapper() {
     setPlayerPosition(playerPosition);
   }, [playerPosition]);
 
-  function undiscoveredLocationHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
-    return {
-      position: coordinates,
-      text: "My text",
-      title: "Title"
-    };
+  useEffect(() => {
+    async function discoveredPositionsSetter() {
+      const positions = await getExplored();
+      setDiscoveredPositions([...positions, playerPosition]);
+      setFogPositions(getDefaultFoggyMap(pragueBoundingBox, [...positions, playerPosition]));
+    }
+
+    if (discoveredPositions.length === 0 && pointsOfInterest.length === 0)
+      discoveredPositionsSetter().then();
+  }, []);
+
+  useEffect(() => {
+    async function locationsSetter() {
+      const locations = await getAll();
+      const convertedLocations = locations.slice(0, 20).map((location) => {
+        const coordinates = new data.Position(location.longitude, location.latitude);
+        const props: PointOfInterestProps = {
+          type: location.type,
+          name: location.name,
+          coordinates: coordinates,
+          discovered: checkPoIAlreadyDiscovered(coordinates, discoveredPositions),
+          onUpdate: () => {}
+        }
+
+        return new PointOfInterest(props);
+      });
+
+      setPointsOfInterest(convertedLocations);
+    }
+
+    if (pointsOfInterest.length === 0)
+      locationsSetter().then();
+  }, []);
+
+  function checkPoIAlreadyDiscovered(coordinates: data.Position, discoveredPositions: data.Position[]): boolean {
+    const locationRadius = 0.005;
+    const bottomLeftPoint = new data.Position(coordinates[0] - locationRadius, coordinates[1] - locationRadius);
+    const topRightPoint = new data.Position(coordinates[0] + locationRadius, coordinates[1] + locationRadius);
+    const boundingBox = new data.BoundingBox(bottomLeftPoint, topRightPoint);
+
+    return discoveredPositions.some((position) => data.BoundingBox.containsPosition(boundingBox, position));
+  }
+
+  function updateExploredPoI(coordinates: data.Position) {
+    const locationRadius = 0.005;
+    const bottomLeftPoint = new data.Position(coordinates[0] - locationRadius, coordinates[1] - locationRadius);
+    const topRightPoint = new data.Position(coordinates[0] + locationRadius, coordinates[1] + locationRadius);
+    const boundingBox = new data.BoundingBox(bottomLeftPoint, topRightPoint);
+
+    const updatedPointsOfInterest = pointsOfInterest.map((poi) => {
+      if (data.BoundingBox.containsPosition(boundingBox, poi.coordinates)) {
+        poi.discovered = true;
+      }
+
+      return poi;
+    });
+
+    setPointsOfInterest(updatedPointsOfInterest);
   }
 
   function playerHtmlMapMarkerOptions(coordinates: data.Position): HtmlMarkerOptions {
@@ -178,43 +209,38 @@ function MapWrapper() {
     };
   }
 
-  const addHiddenLocation = () => {
-    const randomLongitude = Math.random() * (14.6 - 14.2) + 14.2;
-    const randomLatitude = Math.random() * (50.15 - 50.0) + 50.0;
-    const newPoint = new data.Position(randomLongitude, randomLatitude);
-    const newMarker: UndiscoveredLocationProps = {
-      type: 0,
-      name: "Hidden location " + Math.random(),
-      coordinates: newPoint,
-      onUpdate: () => {
-      }
-    };
-    setUndiscoveredLocations([...undiscoveredLocations, newMarker]);
-  };
-
-  const updatePlayerPosition = (e: any) => {
-    const markerPosition = e.target.getOptions().position;
-    console.log("You moved the player to: ", markerPosition);
-    setPlayerPosition(markerPosition);
+  const setPlayerPositionAndDiscover = (coordinates: data.Position) => {
+    setPlayerPosition(coordinates);
 
     // TODO: More locations should be added (neighbouring locations should be revealed)
-    setDiscoveredPositions([...discoveredPositions, markerPosition]);
+    setDiscoveredPositions([...discoveredPositions, coordinates]);
 
     const newFogPositions = [];
     for (let i = 0; i < fogPositions.length; i++) {
-      if (fogPositions[i].containsPosition(markerPosition)) {
-        const dissolvedFog = fogPositions[i].dissolve([markerPosition], []);
+      if (fogPositions[i].containsPosition(coordinates)) {
+        const dissolvedFog = fogPositions[i].dissolve([coordinates], []);
         newFogPositions.push(...dissolvedFog);
       } else {
         newFogPositions.push(fogPositions[i]);
       }
     }
 
+    updateExploredPoI(coordinates);
     setFogPositions(newFogPositions);
   };
 
+  const updatePlayerPosition = (e: any) => {
+    const markerPosition = e.target.getOptions().position;
+    console.log("You moved the player to: ", markerPosition);
+    setPlayerPositionAndDiscover(markerPosition);
+  };
+
+  const onClick = (e: any) => {
+    console.log("You click on: ", e);
+  };
+
   const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [
-    //{ eventName: "click", callback: onClick },
+    { eventName: "click", callback: onClick },
     { eventName: "dragend", callback: updatePlayerPosition }
   ];
 
@@ -231,18 +257,19 @@ function MapWrapper() {
     );
   }
 
-  const handleLocationUpdate = (targetIndex: number, newLocation: UndiscoveredLocationProps) => {
-    const newLocations = undiscoveredLocations.map((location, index) =>
+  const handleLocationUpdate = (targetIndex: number, newLocation: PointOfInterestProps) => {
+    const newLocations = pointsOfInterest.map((location, index) =>
       index == targetIndex ? newLocation : location);
-    setUndiscoveredLocations(newLocations);
+    setPointsOfInterest(newLocations);
   };
 
-  const undiscoveredLocationsRender = useMemo(() => {
-    return undiscoveredLocations.map((location, index) => (
-      <UndiscoveredLocation key={location.name} {...location}
-                            onUpdate={() => handleLocationUpdate(index, location)} />
+  const pointsOfInterestRender = useMemo(() => {
+    console.log("pointsOfInterestRender");
+    return pointsOfInterest.map((location, index) => (
+      <PointOfInterest key={newId()} {...location}
+                       onUpdate={() => handleLocationUpdate(index, location)} />
     ));
-  }, [undiscoveredLocations]);
+  }, [pointsOfInterest]);
 
   function clusterClicked(e: any) {
     console.log("clusterClicked", e);
@@ -297,12 +324,12 @@ function MapWrapper() {
     });
   }, [fogPositions]);
 
-  function getDefaultFoggyMap(mapBoundingBox: data.BoundingBox): FogBlobProps[] {
+  function getDefaultFoggyMap(mapBoundingBox: data.BoundingBox, positions): FogBlobProps[] {
     console.log("Getting default foggy map");
     // The grid is 8x8 units
     const gridUnits = 5;
     const buckets: data.Position[][][] = getEmptyBuckets(gridUnits);
-    fillBucketsWithDiscoveredPoints(buckets, discoveredPositions, mapBoundingBox, gridUnits);
+    fillBucketsWithDiscoveredPoints(buckets, positions, mapBoundingBox, gridUnits);
 
     const fogBlobs: FogBlobProps[] = [];
     const longGridTileSize = (data.BoundingBox.getEast(mapBoundingBox) - data.BoundingBox.getWest(mapBoundingBox)) / gridUnits;
@@ -349,32 +376,74 @@ function MapWrapper() {
     ];
   }
 
+  let watchId = null;
+
+  function startTracking() {
+    if (!watchId) {
+      watchId = navigator.geolocation.watchPosition(function(geoPosition) {
+        const userPosition = [geoPosition.coords.longitude, geoPosition.coords.latitude];
+        setPlayerPositionAndDiscover(userPosition);
+      }, function(error) {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Position information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get user position timed out.");
+            break;
+          default:
+            alert("An unknown error occurred.");
+            break;
+        }
+      });
+    }
+  }
+
+  function stopTracking() {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+
   // ----=======================---- DOM Elements ----=======================---- //
 
   return (
     <>
-      <Button size="small" variant="contained" color="primary" onClick={addHiddenLocation}>
-        {" "}
-        HTML MARKER
-      </Button>
-
-      <Button size="small" variant="contained" color="primary" onClick={addFog}>
-        {" "}
-        FOG
-      </Button>
-
-      <Button size="small" variant="contained" color="primary" onClick={removeFog}>
-        {" "}
-        POP
-      </Button>
+      <Card
+        sx={{
+          overflow: "visible",
+          margin: "10px"
+        }}
+      >
+        <Box
+          sx={{
+            p: "10px",
+            display: "flex",
+            alignItems: "center"
+          }}
+        >
+          <Typography variant="h4" noWrap>
+            Warning: Developer Mode is Active!
+          </Typography>
+          <Button sx={{ mr: "5px", ml: "auto" }} size="small" variant="contained" color="primary"
+                  onClick={startTracking}>
+            Start Tracking
+          </Button>
+          <Button size="small" variant="contained" color="primary" onClick={stopTracking}>
+            Stop Tracking
+          </Button>
+        </Box>
+      </Card>
 
       <Box
         borderRadius="lg"
         style={{ overflow: "hidden" }}>
 
         <AzureMapsProvider>
-          <div style={{ height: "calc(100vh - 160px)" }}>
-            <AzureMap options={currentMapOptions} controls={controls} customControls={currentCustomControls}>
+          <div style={{ height: "calc(100vh - 180px)" }}>
+            <AzureMap options={currentMapOptions} controls={controls}>
               <AzureMapDataSourceProvider
                 events={{
                   dataadded: (e: any) => {
@@ -409,7 +478,8 @@ function MapWrapper() {
                   }}
                   type={markersLayer}
                 />
-                {undiscoveredLocationsRender}
+                {pointsOfInterestRender}
+                {pointsOfInterestRender}
                 {renderPlayerHTMLPoint(playerPosition)}
               </AzureMapDataSourceProvider>
             </AzureMap>
