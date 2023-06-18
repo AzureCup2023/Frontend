@@ -1,4 +1,4 @@
-import atlas, { data } from "azure-maps-control";
+import { data } from "azure-maps-control";
 
 export function getEmptyBuckets(gridUnits: number): data.Position[][][] {
   const buckets: data.Position[][][] = new Array(gridUnits);
@@ -19,4 +19,33 @@ export function fillBucketsWithDiscoveredPoints(buckets: data.Position[][][], di
     const y = Math.floor((point[1] - mapBoundingBox[1]) / (mapBoundingBox[3] - mapBoundingBox[1]) * gridUnits);
     buckets[x][y].push(point);
   }
+}
+
+export function getSurroundingPoints(buckets: data.Position[][][], i: number, j: number): data.Position[] {
+  const surroundingPoints: data.Position[] = [];
+  if (i > 0) {
+    surroundingPoints.push(...buckets[i - 1][j]);
+  }
+  if (i < buckets.length - 1) {
+    surroundingPoints.push(...buckets[i + 1][j]);
+  }
+  if (j > 0) {
+    surroundingPoints.push(...buckets[i][j - 1]);
+  }
+  if (j < buckets.length - 1) {
+    surroundingPoints.push(...buckets[i][j + 1]);
+  }
+  if (i > 0 && j > 0) {
+    surroundingPoints.push(...buckets[i - 1][j - 1]);
+  }
+  if (i < buckets.length - 1 && j < buckets.length - 1) {
+    surroundingPoints.push(...buckets[i + 1][j + 1]);
+  }
+  if (i > 0 && j < buckets.length - 1) {
+    surroundingPoints.push(...buckets[i - 1][j + 1]);
+  }
+  if (i < buckets.length - 1 && j > 0) {
+    surroundingPoints.push(...buckets[i + 1][j - 1]);
+  }
+  return surroundingPoints;
 }

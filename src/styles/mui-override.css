@@ -15,44 +15,52 @@
     height: 100%;
 }
 
-.pulseIcon {
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: orange;
-    border: 2px solid white;
-    cursor: pointer;
-    box-shadow: 0 0 0 rgba(0, 204, 255, 0.4);
-    animation: pulse 3s infinite;
-  }
-  
-  .pulseIcon:hover {
-    animation: none;
-  }
-  
-  @keyframes pulse {
+@keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0 rgba(0, 204, 255, 0.4);
+        box-shadow: 0 0 0 0 rgba(0, 204, 255, 0.4);
     }
-  
-    70% {
-      box-shadow: 0 0 0 50px rgba(0, 204, 255, 0);
-    }
-  
-    100% {
-      box-shadow: 0 0 0 0 rgba(0, 204, 255, 0);
-    }
-  }
 
-  .playerIcon {
+    70% {
+        box-shadow: 0 0 0 50px rgba(0, 204, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 204, 255, 0);
+    }
+}
+
+.playerIcon {
     display: block;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: green;
-    border: 2px solid white;
+    background: orange;
+    border: 3px solid white;
     cursor: pointer;
     box-shadow: 0 0 0 rgba(0, 204, 255, 0.4);
-    animation: pulse 3s infinite;
-  }
+    animation: pulse 2s infinite;
+}
+
+.undiscoveredLocation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    color: orange;
+    background: white;
+    font-size: 25px;
+    font-weight: bold;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(0, 204, 255, 0.4);
+    animation: pulse 4s infinite;
+}
+
+.undiscoveredLocation:hover {
+    animation: none;
+}
+
+.undiscoveredLocation::before {
+    content: "?";
+}
