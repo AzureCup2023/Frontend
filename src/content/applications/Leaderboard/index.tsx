@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import Footer from 'src/components/Footer';
+import RecentOrders from './RecentOrders';
 
 export default function Leaderboard() {
 	return (
@@ -26,18 +27,18 @@ export default function Leaderboard() {
 				</Grid>
 			</PageTitleWrapper>
 			<Container maxWidth="lg">
-				<Grid
-				container
-				direction="row"
-				justifyContent="center"
-				alignItems="stretch"
-				spacing={3}
-				>
-				<Grid item xs={12}>
-					TODO
-				</Grid>
-				</Grid>
-			</Container>
+			<Grid
+			container
+			direction="row"
+			justifyContent="center"
+			alignItems="stretch"
+			spacing={3}
+			>
+			<Grid item xs={12}>
+				<RecentOrders />
+			</Grid>
+			</Grid>
+		</Container>
 			<Footer />
 		</>
 	);

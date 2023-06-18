@@ -26,14 +26,11 @@ function EditProfileTab() {
           >
             <Box>
               <Typography variant="h4" gutterBottom>
-                Personal Details
-              </Typography>
-              <Typography variant="subtitle2">
-                Manage informations related to your personal details
+                Osobní údaje
               </Typography>
             </Box>
             <Button variant="text" startIcon={<EditTwoToneIcon />}>
-              Edit
+              Editace
             </Button>
           </Box>
           <Divider />
@@ -42,34 +39,33 @@ function EditProfileTab() {
               <Grid container spacing={0}>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Name:
+                    Jméno:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>Craig Donin</b>
+                    <b>Lorem Ipsolon</b>
                   </Text>
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Date of birth:
+                    Datum narození:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>15 March 1977</b>
+                    <b>15. 6. 1999</b>
                   </Text>
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Address:
+                    Adresa:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Box sx={{ maxWidth: { xs: 'auto', sm: 300 } }}>
                     <Text color="black">
-                      1749 High Meadow Lane, SEQUOIA NATIONAL PARK, California,
-                      93262
+                      Náběhlíkova 28/a 150 00 Praha
                     </Text>
                   </Box>
                 </Grid>
@@ -88,14 +84,11 @@ function EditProfileTab() {
           >
             <Box>
               <Typography variant="h4" gutterBottom>
-                Account Settings
-              </Typography>
-              <Typography variant="subtitle2">
-                Manage details related to your account
+                Nastavení účtu
               </Typography>
             </Box>
             <Button variant="text" startIcon={<EditTwoToneIcon />}>
-              Edit
+              Editace
             </Button>
           </Box>
           <Divider />
@@ -104,17 +97,17 @@ function EditProfileTab() {
               <Grid container spacing={0}>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Language:
+                    Jazyk:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>English (US)</b>
+                    <b>Čeština</b>
                   </Text>
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Timezone:
+                    Časová zóna:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
@@ -124,7 +117,7 @@ function EditProfileTab() {
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Account status:
+                    Status účtu:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
@@ -148,14 +141,11 @@ function EditProfileTab() {
           >
             <Box>
               <Typography variant="h4" gutterBottom>
-                Email Addresses
-              </Typography>
-              <Typography variant="subtitle2">
-                Manage details related to your associated email addresses
+                Email
               </Typography>
             </Box>
             <Button variant="text" startIcon={<EditTwoToneIcon />}>
-              Edit
+              Editace
             </Button>
           </Box>
           <Divider />
@@ -164,26 +154,16 @@ function EditProfileTab() {
               <Grid container spacing={0}>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Email ID:
+                    Email:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>example@demo.com</b>
+                    <b>loremIpsulon@gmail.com</b>
                   </Text>
                   <Box pl={1} component="span">
-                    <Label color="success">Primary</Label>
+                    <Label color="success">Hlavní email</Label>
                   </Box>
-                </Grid>
-                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                  <Box pr={3} pb={2}>
-                    Email ID:
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={8} md={9}>
-                  <Text color="black">
-                    <b>demo@example.com</b>
-                  </Text>
                 </Grid>
               </Grid>
             </Typography>

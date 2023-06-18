@@ -33,7 +33,7 @@ function ManagementUserSettings() {
   return (
     <>
       <Helmet>
-        <title>User Settings - Applications</title>
+        <title>Nastavení účtu</title>
       </Helmet>
       <PageTitleWrapper>
         <Typography variant="h3" component="h3">
