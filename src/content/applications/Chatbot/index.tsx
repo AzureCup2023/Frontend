@@ -118,7 +118,7 @@ function ApplicationsChatBot() {
 	return (
 		<>
 			<Helmet>
-				<title>Azure chat bot</title>
+				<title>Chat bot</title>
 			</Helmet>
 			<RootWrapper className="Mui-FixedWrapper">
 				<ChatWindow>

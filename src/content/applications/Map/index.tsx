@@ -1,5 +1,4 @@
 import { Helmet } from 'react-helmet-async';
-import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import { Grid, Container } from '@mui/material';
 import Footer from 'src/components/Footer';
 
@@ -12,7 +11,7 @@ function ApplicationsTransactions() {
   return (
     <>
       <Helmet>
-        <title>Transactions - Applications</title>
+        <title>Mapa</title>
       </Helmet>
       <Container maxWidth="lg">
         <Grid

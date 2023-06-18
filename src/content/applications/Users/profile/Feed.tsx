@@ -14,39 +14,39 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 function Feed() {
   const feed = [
     {
-      name: 'Munroe Dacks',
-      jobtitle: 'Senior Accountant',
-      company: 'Trudoo',
+      name: 'Megan Lorem',
+      jobtitle: 'Účetní',
+      company: 'Průzkumník',
       avatar: '/static/images/avatars/1.jpg'
     },
     {
-      name: 'Gunilla Canario',
-      jobtitle: 'Associate Professor',
-      company: 'Buzzdog',
+      name: 'Kamila Nováková',
+      jobtitle: 'Učitelka',
+      company: 'Objevitel',
       avatar: '/static/images/avatars/2.jpg'
     },
     {
-      name: 'Rowena Geistmann',
-      jobtitle: 'Pharmacist',
-      company: 'Yozio',
+      name: 'John Cabbage',
+      jobtitle: 'Lékárník',
+      company: 'Průzkumník',
       avatar: '/static/images/avatars/3.jpg'
     },
     {
-      name: 'Ede Stoving',
-      jobtitle: 'VP Operations',
-      company: 'Cogibox',
-      avatar: '/static/images/avatars/4.jpg'
+      name: 'Edward Jonson',
+      jobtitle: 'Svářeč',
+      company: 'Milovník vesnic',
+      avatar: '/static/images/avatars/6.jpg'
     },
     {
-      name: 'Crissy Spere',
-      jobtitle: 'Social Worker',
-      company: 'Babbleblab',
+      name: 'Ludmila Uličná',
+      jobtitle: 'Sociální pracovnice',
+      company: 'Cestovatel',
       avatar: '/static/images/avatars/5.jpg'
     },
     {
-      name: 'Michel Greatbanks',
-      jobtitle: 'Research Assistant III',
-      company: 'Aimbu',
+      name: 'Roman Romanov',
+      jobtitle: 'Výzkumný pracovník',
+      company: 'Rookie',
       avatar: '/static/images/avatars/6.jpg'
     }
   ];

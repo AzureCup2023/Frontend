@@ -61,14 +61,14 @@ function WatchListColumn() {
       gradient: {
         shade: 'dark',
         type: 'vertical',
-        shadeIntensity: 0.1,
+        shadeIntensity: 0.7,
         inverseColors: false,
         opacityFrom: 0.8,
         opacityTo: 0,
         stops: [0, 100]
       }
     },
-    colors: [theme.colors.primary.main],
+    colors: [theme.colors.primary.dark],
     dataLabels: {
       enabled: false
     },
@@ -77,7 +77,7 @@ function WatchListColumn() {
     },
     stroke: {
       show: true,
-      colors: [theme.colors.primary.main],
+      colors: [theme.colors.primary.dark],
       width: 3
     },
     legend: {
@@ -90,7 +90,13 @@ function WatchListColumn() {
       'Čtvrtek',
       'Pátek',
       'Sobota',
-      'Neděle'
+      'Neděle',
+      'Pondělí',
+      'Úterý',
+      'Středa',
+      'Čtvrtek',
+      'Pátek',
+      'Sobota',
     ],
     xaxis: {
       labels: {
@@ -118,14 +124,8 @@ function WatchListColumn() {
   };
   const chart1Data = [
     {
-      name: 'Počet kilometrů',
-      data: [10.5, 13.598, 9.1, 6.439, 12.755, 8.3, 12.31]
-    }
-  ];
-  const chart2Data = [
-    {
-      name: 'Počet nových míst',
-      data: [28, 16, 14, 8, 29, 11, 35]
+      name: 'Počet uživatelů (v tisících)',
+      data: [50.567, 47.896, 55.634, 47.567, 55.763, 57.371, 49.567, 47.896, 55.634, 47.567, 55.763, 57.371, 49.567]
     }
   ];
 
@@ -137,7 +137,7 @@ function WatchListColumn() {
       alignItems="stretch"
       spacing={3}
     >
-      <Grid item md={6} xs={12}>
+      <Grid item xs={12}>
         <Card
           sx={{
             overflow: 'visible'
@@ -151,10 +151,10 @@ function WatchListColumn() {
             <Box display="flex" alignItems="center">
               <Box>
                 <Typography variant="h4" noWrap>
-                  Denní aktivita
+                  Aktivní uživatelé
                 </Typography>
                 <Typography variant="subtitle1" noWrap>
-                  Počet nachozených kilometrů
+                  Počet aktivních uživatelů
                 </Typography>
               </Box>
             </Box>
@@ -173,67 +173,16 @@ function WatchListColumn() {
                   mb: 1
                 }}
               >
-                12.31 km
+                45 745
               </Typography>
-              <Text color="success">
-                <b>+12.5%</b>
+              <Text>
+                <b>průměřně poslední týden</b>
               </Text>
             </Box>
           </Box>
           <Chart
             options={chartOptions}
             series={chart1Data}
-            type="area"
-            height={200}
-          />
-        </Card>
-      </Grid>
-      <Grid item md={6} xs={12}>
-        <Card
-          sx={{
-            overflow: 'visible'
-          }}
-        >
-          <Box
-            sx={{
-              p: 3
-            }}
-          >
-            <Box display="flex" alignItems="center">
-              <Box>
-                <Typography variant="h4" noWrap>
-                  Nové místa
-                </Typography>
-                <Typography variant="subtitle1" noWrap>
-                  Počet nově navštívených míst
-                </Typography>
-              </Box>
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                pt: 3
-              }}
-            >
-              <Typography
-                variant="h2"
-                sx={{
-                  pr: 1,
-                  mb: 1
-                }}
-              >
-                117
-              </Typography>
-              <Text>
-                <b>tento týden</b>
-              </Text>
-            </Box>  
-          </Box>
-          <Chart
-            options={chartOptions}
-            series={chart2Data}
             type="area"
             height={200}
           />

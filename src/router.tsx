@@ -114,15 +114,21 @@ const routes: RouteObject[] = [
     ]
   },
   {
+    path: 'stats',
+    element: <SidebarLayout />,
+    children: [
+      {
+        path: '',
+        element: <Transactions />,
+      },
+    ]
+  },
+  {
     path: 'dashboards',
     element: <SidebarLayout />,
     children: [
       {
         path: '',
-        element: <Navigate to="crypto" replace />
-      },
-      {
-        path: 'crypto',
         element: <Crypto />
       },
       {
@@ -139,14 +145,6 @@ const routes: RouteObject[] = [
     path: 'management',
     element: <SidebarLayout />,
     children: [
-      {
-        path: '',
-        element: <Navigate to="transactions" replace />
-      },
-      {
-        path: 'transactions',
-        element: <Transactions />
-      },
       {
         path: 'profile',
         children: [

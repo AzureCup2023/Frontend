@@ -11,7 +11,7 @@ function DashboardCrypto() {
   return (
     <>
       <Helmet>
-        <title>Crypto Dashboard</title>
+        <title>Přehled</title>
       </Helmet>
       <PageTitleWrapper>
         <PageHeader />

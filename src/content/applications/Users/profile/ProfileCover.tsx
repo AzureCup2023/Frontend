@@ -91,7 +91,7 @@ const ProfileCover = ({ user }) => {
               variant="contained"
               component="span"
             >
-              Change cover
+              Změnit fotku
             </Button>
           </label>
         </CardCoverAction>

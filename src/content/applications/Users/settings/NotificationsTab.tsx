@@ -30,9 +30,9 @@ function NotificationsTab() {
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Box pb={2}>
-          <Typography variant="h3">Account</Typography>
+          <Typography variant="h3">Notifikace</Typography>
           <Typography variant="subtitle2">
-            Choose what notifications you want to receive
+            Spravujte nastavení notifikací
           </Typography>
         </Box>
         <Card>
@@ -44,8 +44,8 @@ function NotificationsTab() {
                   variant: 'subtitle2',
                   lineHeight: 1
                 }}
-                primary="Widthdraw Activity"
-                secondary="Receive an email when a widthdrawal is made"
+                primary="Achievmenty"
+                secondary="Upozornit v případě odemčení nového achievmentu"
               />
               <Switch
                 color="primary"
@@ -62,43 +62,14 @@ function NotificationsTab() {
                   variant: 'subtitle2',
                   lineHeight: 1
                 }}
-                primary="Weekly Report"
-                secondary="Receive account status weekly report in your inbox"
+                primary="Sociální mód"
+                secondary="Umožní vám potkávat nové lidi"
               />
               <Switch
                 color="primary"
                 checked={state.checkedB}
                 onChange={handleChange}
                 name="checkedB"
-              />
-            </ListItem>
-          </List>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Box pb={2}>
-          <Typography variant="h3">Orders</Typography>
-          <Typography variant="subtitle2">
-            Receive email notifications related to your orders activity
-          </Typography>
-        </Box>
-        <Card>
-          <List>
-            <ListItem sx={{ p: 3 }}>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Failed Payment"
-                secondary="Get a message when a payment fails"
-              />
-              <Switch
-                color="primary"
-                checked={state.checkedC}
-                onChange={handleChange}
-                name="checkedC"
               />
             </ListItem>
             <Divider component="li" />
@@ -109,14 +80,14 @@ function NotificationsTab() {
                   variant: 'subtitle2',
                   lineHeight: 1
                 }}
-                primary="Order Status Update"
-                secondary="Whenever an order is updated, get a notification on your phone"
+                primary="Posílání e-mailu"
+                secondary="Posílání notifikací na email"
               />
               <Switch
                 color="primary"
-                checked={state.checkedD}
+                checked={state.checkedC}
                 onChange={handleChange}
-                name="checkedD"
+                name="checkedC"
               />
             </ListItem>
           </List>
