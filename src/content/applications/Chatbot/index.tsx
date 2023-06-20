@@ -98,7 +98,28 @@ function Block(prop: {text: string, flex: string}) {
 
 
 function ApplicationsChatBot() {
-	const [chatContent, setChatContent] = useState([]);
+	const [chatContent, setChatContent] = useState(initFromStorage);
+
+	function initFromStorage() {
+		const hist = localStorage.getItem('history');
+		let res;
+		if (hist == "") {
+			res = [];
+		} else [
+			res = JSON.parse(hist)
+		]
+		return res;
+	}
+
+	function getMessages(newMsg) {
+		const msgs = [{ role: "assistant", content: "Jsem váš cestovní průvodce. Jak vám mohu pomoci?"}];
+		for (const item of chatContent) {
+			const role = item.flex == 'end' ? "user" : "assistant";
+			msgs.push({role:role, content: item.text});
+		}
+		msgs.push({role: "user", content: newMsg})
+		return msgs;
+	}
 
 	async function sendMessage() {
 		const elem = (document.getElementById("text-content") as HTMLInputElement);
@@ -113,13 +134,14 @@ function ApplicationsChatBot() {
 		setChatContent([...chatContent]);
 		const chatCompletion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
-			messages: [{role: "user", content: message}],
+			messages: getMessages(message),
 		});
 		chatContent.pop();
 		chatContent.push({flex: "start", text: chatCompletion.data.choices[0].message.content});
 		btn.disabled = false;
 		btn.style.backgroundColor = "#5569ff";
 		setChatContent([...chatContent]);
+		localStorage.setItem("history", JSON.stringify(chatContent));
 	}
 
 	const theme = useTheme();
