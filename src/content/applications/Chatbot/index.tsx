@@ -102,14 +102,23 @@ function ApplicationsChatBot() {
 
 	async function sendMessage() {
 		const elem = (document.getElementById("text-content") as HTMLInputElement);
+		const btn = (document.getElementById("send-btn") as HTMLButtonElement);
 		if (!elem.value) return;
-		chatContent.push({flex: "end", text: elem.value});
+		btn.disabled = true;
+		btn.style.backgroundColor = "#223354";
+		const message = elem.value;
+		chatContent.push({flex: "end", text: message});
+		elem.value = "";
+		chatContent.push({flex: "start", text: "..."});
 		setChatContent([...chatContent]);
 		const chatCompletion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
-			messages: [{role: "user", content: elem.value}],
+			messages: [{role: "user", content: message}],
 		});
+		chatContent.pop();
 		chatContent.push({flex: "start", text: chatCompletion.data.choices[0].message.content});
+		btn.disabled = false;
+		btn.style.backgroundColor = "#5569ff";
 		setChatContent([...chatContent]);
 	}
 
@@ -144,13 +153,13 @@ function ApplicationsChatBot() {
 							<MessageInputWrapper
 								id="text-content"
 								autoFocus
-								placeholder="Write your message here..."
+								placeholder="Zde napiš svůj dotaz..."
 								fullWidth
 							/>
 						</Box>
 						<Box>
-							<Button onClick={sendMessage} startIcon={<SendTwoToneIcon />} variant="contained">
-								Send
+							<Button id="send-btn" onClick={sendMessage} startIcon={<SendTwoToneIcon />} variant="contained">
+								Odeslat
 							</Button>
 						</Box>
 					</Box>

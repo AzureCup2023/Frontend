@@ -129,6 +129,10 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '',
+        element: <Navigate to="/dashboards/overview" replace />
+      },
+      {
+        path: 'overview',
         element: <Crypto />
       },
       {
