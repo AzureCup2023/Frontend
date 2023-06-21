@@ -103,7 +103,7 @@ function ApplicationsChatBot() {
 	function initFromStorage() {
 		const hist = localStorage.getItem('history');
 		let res;
-		if (hist == "") {
+		if (!hist || hist == "") {
 			res = [];
 		} else [
 			res = JSON.parse(hist)
