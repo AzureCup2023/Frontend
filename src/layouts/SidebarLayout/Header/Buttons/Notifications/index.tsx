@@ -86,7 +86,7 @@ function HeaderNotifications() {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Typography variant="h5">Notifications</Typography>
+          <Typography variant="h5">Notifikace</Typography>
         </Box>
         <Divider />
         <List sx={{ p: 0 }}>

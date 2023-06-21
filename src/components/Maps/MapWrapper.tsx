@@ -19,6 +19,7 @@ import {
   AzureMapDataSourceProvider,
   AzureMapHtmlMarker,
   AzureMapLayerProvider,
+  AzureMapPopup,
   AzureMapsProvider,
   IAzureCustomControls,
   IAzureMapControls, IAzureMapHtmlMarkerEvent, IAzureMapLayerType, IAzureMapOptions
@@ -130,6 +131,7 @@ function MapWrapper() {
   const [fogPositions, setFogPositions] = useState<FogBlobProps[]>([]);
   const [discoveredPositions, setDiscoveredPositions] = useState([]);
   const [pointsOfInterest, setPointsOfInterest] = useState<PointOfInterestProps[]>([]);
+  const [popUpContent, setPopUpContent] = useState({lat:0, lon:0, content:"", visible: false});
 
   useEffect(() => {
     console.log("Moved map center to: " + currentMapOptions.center);
@@ -140,6 +142,7 @@ function MapWrapper() {
   useEffect(() => {
     console.log("Player position changed to: " + playerPosition);
     setPlayerPosition(playerPosition);
+    setPopUpContent({lat:0, lon:0, content:"", visible: false});
   }, [playerPosition]);
 
   useEffect(() => {
@@ -267,6 +270,7 @@ function MapWrapper() {
     console.log("pointsOfInterestRender");
     return pointsOfInterest.map((location, index) => (
       <PointOfInterest key={newId()} {...location}
+                       popUpContentF={setPopUpContent}
                        onUpdate={() => handleLocationUpdate(index, location)} />
     ));
   }, [pointsOfInterest]);
@@ -479,8 +483,20 @@ function MapWrapper() {
                   type={markersLayer}
                 />
                 {pointsOfInterestRender}
-                {pointsOfInterestRender}
                 {renderPlayerHTMLPoint(playerPosition)}
+                <AzureMapPopup
+                  isVisible={popUpContent.visible}
+                  options={{
+                    position: new data.Position(
+                      popUpContent.lat,
+                      popUpContent.lon,
+                    ),
+                    pixelOffset: [0, -10],
+                  }}
+                  popupContent={
+                    <div style={{padding: "1rem", fontSize: "1.2rem"}}>{popUpContent.content}</div>
+                  }
+                />
               </AzureMapDataSourceProvider>
             </AzureMap>
           </div>

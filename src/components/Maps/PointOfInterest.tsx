@@ -1,6 +1,8 @@
 import React from "react";
 import { HtmlMarkerOptions, data } from "azure-maps-control";
-import { AzureMapHtmlMarker } from "react-azure-maps";
+import { AzureMapHtmlMarker, IAzureMapHtmlMarkerEvent, useCreatePopup } from "react-azure-maps";
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import Visibility from '@mui/icons-material/Visibility';
 
 export interface PointOfInterestProps {
   type: number;
@@ -8,6 +10,7 @@ export interface PointOfInterestProps {
   coordinates: data.Position;
   discovered: boolean;
   onUpdate: () => void;
+  popUpContentF?: (x:{}) => void;
 }
 
 export class PointOfInterest extends React.Component<PointOfInterestProps> {
@@ -34,15 +37,39 @@ export class PointOfInterest extends React.Component<PointOfInterestProps> {
   };
 
   render() {
+    const onClick = (e: any) => {
+      this.props.popUpContentF({
+        lat: e.target.element.childNodes[0].attributes['data-lat'].value.split(",")[0],
+        lon: e.target.element.childNodes[0].attributes['data-lat'].value.split(",")[1],
+        content: e.target.element.childNodes[0].attributes['data-name'].value,
+        visible: true,
+      });
+    };
+  
+    const eventToMarker: Array<IAzureMapHtmlMarkerEvent> = [
+      { eventName: "click", callback: onClick },
+    ];
+  
     console.log("PointOfInterest.render: " + this.coordinates);
     const { name, coordinates } = this.props;
     const rendId = Math.random();
+    console.log(this.props)
     return (
       this.discovered ?
         <AzureMapHtmlMarker
           key={rendId}
-          markerContent={<div className="discoveredLocation"></div>}
+          markerContent={<div className="discoveredLocation" data-name={name} data-lat={coordinates} data-lon={coordinates}>
+            {
+              this.props.type == 1 && 
+              <Visibility />
+            }
+            {
+              this.props.type == 2 || this.props.type == 0 && 
+              <AccountBalanceIcon />
+            }
+          </div>}
           options={{ ...this.discoveredLocationHtmlMapMarkerOptions() } as any}
+          events={eventToMarker}
         />
         :
         <AzureMapHtmlMarker
